@@ -12,10 +12,10 @@ class LevelSandbox {
     }
 
     // Get data from levelDB with key (Promise)
-    getLevelDBData(key){
+    getLevelDBData(key) {
         let self = this;
-        return new Promise(function(resolve, reject) {
-            self.db.get(key, (err,value) => {
+        return new Promise(function (resolve, reject) {
+            self.db.get(key, (err, value) => {
                 if (err) reject(err);
                 resolve(value)
             })
@@ -25,22 +25,30 @@ class LevelSandbox {
     // Add data to levelDB with key and value (Promise)
     addLevelDBData(key, value) {
         let self = this;
-        return new Promise(function(resolve, reject) {
-            self.db.put(key, (err,value) => {
-                if (err) reject(err);
-                resolve (value)
-            })
-        });
+        return new Promise((resolve, reject) => {
+                console.log('will put ', value);
+                self.db.put(key, (err, value) => {
+                    if (err) reject(err);
+                    resolve(value)
+                })
+            }
+        );
     }
 
-    // Method that return the height
+    // Method that returns the height
     getBlocksCount() {
         let self = this;
-        return new Promise(function(resolve, reject){
-            // Add your code here, remember un Promises you need to resolve() or reject()
+        // Count each Block from the stream
+        // and return the final count
+        // when the stream ends
+        let blockCount = 0;
+        return new Promise(function (resolve, reject) {
+            self.db.createReadStream()
+                .on('data', (data) => blockCount++)
+                .on('error', (err) => reject(err))
+                .on('end', () => resolve(blockCount))
         });
     }
-        
 
 }
 

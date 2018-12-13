@@ -9,7 +9,7 @@ const Block = require('./Block.js');
 class Blockchain {
 
     constructor() {
-        this.bd = new LevelSandbox.LevelSandbox();
+        this.db = new LevelSandbox.LevelSandbox();
         this.generateGenesisBlock();
     }
 
@@ -17,23 +17,45 @@ class Blockchain {
     // You have to options, because the method will always execute when you create your blockchain
     // you will need to set this up statically or instead you can verify if the height !== 0 then you
     // will not create the genesis block
-    generateGenesisBlock(){
-        // Add your code here
+    generateGenesisBlock() {
+        let self = this;
+        this.getBlockHeight().then(
+            height => {
+                console.log('height is ', height)
+                if (height === 0) {
+
+                    let block = new Block("First block in the chain - Genesis block");
+                    console.log('HERE')
+                    self.addBlock(block)
+                        .then((result) => console.log(result));
+                }
+            })
+            .catch(reason => console.log('Failed to create Genesis Block: ', reason))
     }
 
     // Get block height, it is auxiliar method that return the height of the blockchain
     getBlockHeight() {
-        // Add your code here
+        return this.db.getBlocksCount()
     }
 
     // Add new block
-    addBlock(block) {
-        return this.bd.addLevelDBData(block)
+    addBlock(newBlock) {
+        console.log('In addBlock()');
+        let self = this;
+        return new Promise(
+            (resolve, reject) => {
+                self.getBlockHeight()
+                    .then(height => self.db.addLevelDBData(height, newBlock)
+                        .then(result => resolve(result))
+                        .catch(reason => reject(reason)))
+            }
+        )
+        // return this.db.addLevelDBData(newBlock)
     }
 
     // Get Block By Height
     getBlock(height) {
-        // Add your code here
+        return this.db.getLevelDBData(height)
     }
 
     // Validate if Block is being tampered by Block Height
@@ -50,13 +72,16 @@ class Blockchain {
     // This method is for testing purpose
     _modifyBlock(height, block) {
         let self = this;
-        return new Promise( (resolve, reject) => {
-            self.bd.addLevelDBData(height, JSON.stringify(block).toString()).then((blockModified) => {
+        return new Promise((resolve, reject) => {
+            self.db.addLevelDBData(height, JSON.stringify(block).toString()).then((blockModified) => {
                 resolve(blockModified);
-            }).catch((err) => { console.log(err); reject(err)});
+            }).catch((err) => {
+                console.log(err);
+                reject(err)
+            });
         });
     }
-   
+
 }
 
 module.exports.Blockchain = Blockchain;
