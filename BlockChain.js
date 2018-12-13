@@ -28,7 +28,7 @@ class Blockchain {
 
     // Add new block
     addBlock(block) {
-        // Add your code here
+        return this.bd.addLevelDBData(block)
     }
 
     // Get Block By Height

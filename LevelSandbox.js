@@ -15,7 +15,10 @@ class LevelSandbox {
     getLevelDBData(key){
         let self = this;
         return new Promise(function(resolve, reject) {
-            // Add your code here, remember un Promises you need to resolve() or reject()
+            self.db.get(key, (err,value) => {
+                if (err) reject(err);
+                resolve(value)
+            })
         });
     }
 
@@ -23,7 +26,10 @@ class LevelSandbox {
     addLevelDBData(key, value) {
         let self = this;
         return new Promise(function(resolve, reject) {
-            // Add your code here, remember un Promises you need to resolve() or reject() 
+            self.db.put(key, (err,value) => {
+                if (err) reject(err);
+                resolve (value)
+            })
         });
     }
 
