@@ -14,8 +14,6 @@ setTimeout(function () {
 /******************************************
  ** Function for Create Tests Blocks   ****
  ******************************************/
-
-
 (function theLoop(i) {
     setTimeout(function () {
         console.log('New block..');

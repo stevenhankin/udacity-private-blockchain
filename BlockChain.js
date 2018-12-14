@@ -48,6 +48,7 @@ class Blockchain {
                     .then(height => self.db.addLevelDBData(height, newBlock)
                         .then(result => resolve(result))
                         .catch(reason => reject(reason)))
+                    .catch(reason => reject(reason));
             }
         )
         // return this.db.addLevelDBData(newBlock)
