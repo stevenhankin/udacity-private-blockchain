@@ -7,22 +7,15 @@ const Block = require('./Block.js');
 
 let myBlockChain = new BlockChain.Blockchain();
 
-setTimeout(function () {
-    console.log("Waiting...")
-}, 10000);
-
 /******************************************
  ** Function for Create Tests Blocks   ****
  ******************************************/
 (function theLoop(i) {
     setTimeout(function () {
-        console.log('New block..');
-        let blockTest = new Block("Test Block - " + (i + 1));
-        console.log(blockTest)
+        let blockTest = new Block("Test Block - " + (i + 1) );
         myBlockChain
             .addBlock(blockTest)
             .then(result => {
-                console.log('RESULT: ', result);
                 i++;
                 if (i < 10) theLoop(i);
             })
@@ -36,8 +29,6 @@ setTimeout(function () {
 /***********************************************
  ** Function to get the Height of the Chain ****
  ***********************************************/
-
-// Be careful this only will work if `getBlockHeight` method in Blockchain.js file return a Promise
 myBlockChain.getBlockHeight().then((height) => {
     console.log(height);
 }).catch((err) => {
@@ -48,30 +39,24 @@ myBlockChain.getBlockHeight().then((height) => {
 /***********************************************
  ******** Function to Get a Block  *************
  ***********************************************/
-
-/*
-// Be careful this only will work if `getBlock` method in Blockchain.js file return a Promise
 myBlockChain.getBlock(0).then((block) => {
-	console.log(JSON.stringify(block));
+	console.log('Get Block',JSON.stringify(block));
 }).catch((err) => { console.log(err);});
-*?
+
 
 /***********************************************
  ***************** Validate Block  *************
  ***********************************************/
 
-/*
-// Be careful this only will work if `validateBlock` method in Blockchain.js file return a Promise
-myBlockChain.validateBlock(0).then((valid) => {
+myBlockChain.validateBlock(1).then((valid) => {
 	console.log(valid);
 })
 .catch((error) => {
 	console.log(error);
-})
-*/
+});
+
 
 /** Tampering a Block this is only for the purpose of testing the validation methods */
-/*
 myBlockChain.getBlock(5).then((block) => {
 	let blockAux = block;
 	blockAux.body = "Tampered Block";

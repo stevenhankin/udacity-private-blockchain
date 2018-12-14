@@ -13,28 +13,16 @@ class LevelSandbox {
 
     // Get data from levelDB with key (Promise)
     getLevelDBData(key) {
-        let self = this;
-        return new Promise(function (resolve, reject) {
-            self.db.get(key, (err, value) => {
-                if (err) reject(err);
-                resolve(value)
+        return this.db.get(key).then(block => {
+            return new Promise((resolve,reject) =>{
+                resolve(JSON.parse(block))
             })
         });
     }
 
     // Add data to levelDB with key and value (Promise)
     addLevelDBData(key, value) {
-        console.log('addLevelDBData: ',key,value);
-        let self = this;
-        return new Promise((resolve, reject) => {
-                console.log('will put ', value);
-                self.db.put(key, value, (err) => {
-                    if (err) reject(err);
-                    console.log('will resolve with', value)
-                    resolve(value)
-                })
-            }
-        );
+        return this.db.put(key, JSON.stringify(value).toString());
     }
 
     // Method that returns the height
@@ -47,7 +35,7 @@ class LevelSandbox {
         return new Promise(function (resolve, reject) {
             console.log("getBlocksCount()");
             self.db.createReadStream()
-                .on('data', (data) => blockCount++)
+                .on('data', (data) => blockCount=blockCount+1)
                 .on('error', (err) => reject(err))
                 .on('end', () => resolve(blockCount))
                 .on('close', () => resolve(blockCount))

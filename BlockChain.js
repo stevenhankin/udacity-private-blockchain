@@ -25,7 +25,7 @@ class Blockchain {
                 if (height === 0) {
 
                     let block = new Block("First block in the chain - Genesis block");
-                    console.log('HERE')
+                    console.log('HERE');
                     self.addBlock(block)
                         .then((result) => console.log(result));
                 }
@@ -33,26 +33,39 @@ class Blockchain {
             .catch(reason => console.log('Failed to create Genesis Block: ', reason))
     }
 
-    // Get block height, it is auxiliar method that return the height of the blockchain
+    // Get block height by counting blocks in chain
+    // This will be equivalent to <height of top block> + 1
     getBlockHeight() {
         return this.db.getBlocksCount()
     }
 
-    // Add new block
+    // Add new block by chaining together promises
+    // to get the height of chain..
+    // to get the top block..
+    // to add a new block with some details based on previous block
     addBlock(newBlock) {
-        console.log('In addBlock()');
         let self = this;
-        return new Promise(
-            (resolve, reject) => {
-                self.getBlockHeight()
-                    .then(height => self.db.addLevelDBData(height, newBlock)
-                        .then(result => resolve(result))
-                        .catch(reason => reject(reason)))
-                    .catch(reason => reject(reason));
+        return self.getBlockHeight()
+                    .then(height => {
+                        if (height === 0) {
+                            // This will be the Genesis Block
+                            return self.db.addLevelDBData(0, newBlock)
+                        } else {
+                            return self.getBlock(height - 1)
+                                .then(prevBlock => {
+                                    newBlock.height = prevBlock.height + 1;
+                                    newBlock.previousBlockHash = prevBlock.hash;
+                                    newBlock.hash = newBlock.getBlockHash();
+                                    console.log('newBlock',newBlock)
+                                    return self.db.addLevelDBData(newBlock.height, newBlock)
+                                })
+                                .catch(reason => console.error('failed to getBlock for height', height, reason))
+                        }
+                    })
+                    .catch(reason => console.error('failed to getBlockHeight', reason));
             }
-        )
-        // return this.db.addLevelDBData(newBlock)
-    }
+
+
 
     // Get Block By Height
     getBlock(height) {
@@ -61,7 +74,20 @@ class Blockchain {
 
     // Validate if Block is being tampered by Block Height
     validateBlock(height) {
+        let self = this;
         // Add your code here
+        return self.getBlock(height)
+            .then(rawBlock => {
+                let block = Object.assign(new Block,rawBlock)
+                console.log('validating block',block);
+                return new Promise((resolve,reject) => {
+                    if (block.hash !== block.getBlockHash()) {
+                        reject('Hash is invalid')
+                    }
+                    resolve('Hash is valid')
+                })
+            })
+            .catch(reason => console.error('failed to getBlock for height', height, reason))
     }
 
     // Validate Blockchain
@@ -74,7 +100,7 @@ class Blockchain {
     _modifyBlock(height, block) {
         let self = this;
         return new Promise((resolve, reject) => {
-            self.db.addLevelDBData(height, JSON.stringify(block).toString()).then((blockModified) => {
+            self.db.addLevelDBData(height, block).then((blockModified) => {
                 resolve(blockModified);
             }).catch((err) => {
                 console.log(err);
