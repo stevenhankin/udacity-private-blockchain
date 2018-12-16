@@ -30,11 +30,7 @@ let myBlockChain = new BlockChain.Blockchain();
 /***********************************************
  ** Function to get the Height of the Chain ****
  ***********************************************/
-myBlockChain.getBlockHeight().then(height => {
-    console.log(height);
-}).catch(err => {
-    console.error(err);
-});
+myBlockChain.getBlockHeight().then(height => console.log(height)).catch(err => console.error(err));
 
 
 /***********************************************

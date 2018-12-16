@@ -8,7 +8,7 @@ const Block = require('./Block.js');
 
 class Blockchain {
 
-    
+
     constructor() {
         this.db = new LevelSandbox.LevelSandbox();
         this.generateGenesisBlock();
@@ -25,12 +25,10 @@ class Blockchain {
             .then(
                 height => {
                     if (height === 0) {
-                        let block = new Block("First block in the chain - Genesis Block");
-                        self.addBlock(block)
-                            .then((result) => console.log(result));
+                        self.addBlock(new Block("First block in the chain - Genesis Block"))
                     }
                 })
-            .catch(reason => console.log('Failed to create Genesis Block: ', reason))
+            .catch(reason => console.error('Failed to create Genesis Block: ', reason))
     }
 
 
@@ -57,10 +55,14 @@ class Blockchain {
                                 .then(resolve('Genesis Block created'))
                                 .catch(reject('Failed to add Genesis Block'))
                         } else {
+                            // Need previous block to determine
+                            // new height and previous block hash
                             return self.getBlock(height - 1)
                                 .then(prevBlock => {
                                     newBlock.height = prevBlock.height + 1;
                                     newBlock.previousBlockHash = prevBlock.hash;
+                                    // Only can compute the hash AFTER the block is setup
+                                    // since those details form part of the hash
                                     newBlock.hash = newBlock.getBlockHash();
                                     self.db.addLevelDBData(newBlock.height, newBlock)
                                         .then(resolve('Block created'))
@@ -113,8 +115,10 @@ class Blockchain {
         let errorLog = [];
 
         return new Promise((resolve, reject) => {
+            // Utility to keep a running total of blocks validated
             const chainValidator = (height) => {
                 blockCount++;
+                // Once all blocks processed, resolve/reject as appropriate
                 if (blockCount === height) {
                     if (errorLog.length > 0) {
                         reject(errorLog)
@@ -123,18 +127,17 @@ class Blockchain {
                     }
                 }
             };
-
+            // Need to know the blockchain height before we start
+            // so that we know when we've checked ALL the blocks
             self.getBlockHeight()
                 .then((height) => {
                     this.db.getBlockIndexStream()
                         .on('data', block => {
                             self.validateBlock(block)
-                                .then((message) => {
-                                        chainValidator(height);
-                                    },
+                                .then((message) => chainValidator(height),
                                     (reason) => {
                                         // All invalid blocks are appended
-                                        // to a list for reporting afterwards
+                                        // to array for reporting afterwards
                                         errorLog.push(reason);
                                         chainValidator(height);
                                     })
@@ -142,7 +145,6 @@ class Blockchain {
                         })
                         .on('error', (err) => reject(err))
                 });
-
         });
     }
 
@@ -152,12 +154,9 @@ class Blockchain {
     _modifyBlock(height, block) {
         let self = this;
         return new Promise((resolve, reject) => {
-            self.db.addLevelDBData(height, block).then((blockModified) => {
-                resolve(blockModified);
-            }).catch((err) => {
-                console.log(err);
-                reject(err)
-            });
+            self.db.addLevelDBData(height, block)
+                .then(blockModified => resolve(blockModified))
+                .catch(err => reject(err));
         });
     }
 
