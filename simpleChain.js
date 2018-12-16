@@ -4,12 +4,10 @@
 
 const BlockChain = require('./BlockChain.js');
 const Block = require('./Block.js');
-
 let myBlockChain = new BlockChain.Blockchain();
 
-/******************************************
- ** Function for Create Tests Blocks   ****
- ******************************************/
+
+// Test: Each second, add one block to blockchain
 (function theLoop(i) {
     setTimeout(function () {
         let blockTest = new Block("Test Block - " + (i + 1) );
@@ -17,8 +15,11 @@ let myBlockChain = new BlockChain.Blockchain();
             .addBlock(blockTest)
             .then(result => {
                 i++;
-                if (i < 10) theLoop(i);
-            })
+                console.log(`Added block ${i}`);
+                if (i < 10) {
+                	theLoop(i);
+				}
+            },(reason) => console.error(reason))
             .catch(reason => {
                 console.log('Failed to add a block:', reason);
             });
@@ -29,31 +30,30 @@ let myBlockChain = new BlockChain.Blockchain();
 /***********************************************
  ** Function to get the Height of the Chain ****
  ***********************************************/
-myBlockChain.getBlockHeight().then((height) => {
+myBlockChain.getBlockHeight().then(height => {
     console.log(height);
-}).catch((err) => {
-    console.log(err);
+}).catch(err => {
+    console.error(err);
 });
 
 
 /***********************************************
  ******** Function to Get a Block  *************
  ***********************************************/
-myBlockChain.getBlock(0).then((block) => {
-	console.log('Get Block',JSON.stringify(block));
-}).catch((err) => { console.log(err);});
-
-
-/***********************************************
- ***************** Validate Block  *************
- ***********************************************/
-
-myBlockChain.validateBlock(1).then((valid) => {
-	console.log(valid);
-})
-.catch((error) => {
-	console.log(error);
+myBlockChain.getBlock(0).then(block => {
+	console.log('Get Block', JSON.stringify(block));
+}).catch((err) => {
+	console.error('Block does not exist');
 });
+
+// Validate Genesis Block
+myBlockChain.validateBlock(0).then(valid => console.log(valid)).catch(err => console.error(err));
+
+// Validate 2nd block
+myBlockChain.validateBlock(1).then(valid => console.log(valid)).catch(err => console.error(err));
+
+// Validate 3rd block
+myBlockChain.validateBlock(2).then(valid => console.log(valid)).catch(err => console.error(err));
 
 
 /** Tampering a Block this is only for the purpose of testing the validation methods */
@@ -66,7 +66,7 @@ myBlockChain.getBlock(5).then((block) => {
 				console.log(`Block #${blockAux.height}, is valid? = ${valid}`);
 			})
 			.catch((error) => {
-				console.log(error);
+				console.error(error);
 			})
 		} else {
 			console.log("The Block wasn't modified");
@@ -74,7 +74,8 @@ myBlockChain.getBlock(5).then((block) => {
 	}).catch((err) => { console.log(err);});
 }).catch((err) => { console.log(err);});
 
-myBlockChain.getBlock(6).then((block) => {
+
+myBlockChain.getBlock(3).then((block) => {
 	let blockAux = block;
 	blockAux.previousBlockHash = "jndininuud94j9i3j49dij9ijij39idj9oi";
 	myBlockChain._modifyBlock(blockAux.height, blockAux).then((blockModified) => {
@@ -86,12 +87,10 @@ myBlockChain.getBlock(6).then((block) => {
 	}).catch((err) => { console.log(err);});
 }).catch((err) => { console.log(err);});
 
+
 /***********************************************
  ***************** Validate Chain  *************
  ***********************************************/
-
-/*
-// Be careful this only will work if `validateChain` method in Blockchain.js file return a Promise
 myBlockChain.validateChain().then((errorLog) => {
 	if(errorLog.length > 0){
 		console.log("The chain is not valid:");
@@ -101,8 +100,6 @@ myBlockChain.validateChain().then((errorLog) => {
 	} else {
 		console.log("No errors found, The chain is Valid!");
 	}
-})
-.catch((error) => {
+}).catch((error) => {
 	console.log(error);
-})
-*/
+});
