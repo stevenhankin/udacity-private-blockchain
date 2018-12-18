@@ -43,7 +43,7 @@ class LevelSandbox {
         let blockCount = 0;
         return new Promise(function (resolve, reject) {
             self.db.createReadStream()
-                .on('data', (data) => blockCount=blockCount+1)
+                .on('data', () => blockCount=blockCount+1)
                 .on('error', (err) => reject(err))
                 .on('end', () => resolve(blockCount))
         });

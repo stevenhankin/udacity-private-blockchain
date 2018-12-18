@@ -39,47 +39,48 @@ class Blockchain {
     }
 
 
-    // Add new block by chaining together promises
-    // to get the height of chain..
-    // to get the top block..
-    // to add a new block with some details based on previous block
-    addBlock(newBlock) {
-        let self = this;
-        return new Promise((resolve, reject) => {
-                self.getBlockHeight()
-                    .then(height => {
-                        if (height === 0) {
-                            // This will be the Genesis Block
-                            newBlock.hash = newBlock.getBlockHash();
-                            self.db.addLevelDBData(0, newBlock)
-                                .then(resolve('Genesis Block created'))
-                                .catch(reject('Failed to add Genesis Block'))
-                        } else {
-                            // Need previous block to determine
-                            // new height and previous block hash
-                            return self.getBlock(height - 1)
-                                .then(prevBlock => {
-                                    newBlock.height = prevBlock.height + 1;
-                                    newBlock.previousBlockHash = prevBlock.hash;
-                                    // Only can compute the hash AFTER the block is setup
-                                    // since those details form part of the hash
-                                    newBlock.hash = newBlock.getBlockHash();
-                                    self.db.addLevelDBData(newBlock.height, newBlock)
-                                        .then(resolve('Block created'))
-                                        .catch(reject('Failed to add block'))
-                                })
-                                .catch(() => reject(`failed to get Block ${height}`))
-                        }
-                    })
-                    .catch(() => reject('failed to getBlockHeight'));
-            }
-        )
-    }
-
-
     // Get Block By Height
     getBlock(height) {
         return this.db.getLevelDBData(height)
+    }
+
+
+    // Add a new block to the chain
+    // Additionally, when adding a new block to the chain, code checks if a Genesis block already exists
+    // If not, one is created before adding the a block
+    addBlock(newBlock) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getBlockHeight()
+                .then(height => {
+                        if (height === 0) {
+                            // Empty blockchain; create Genesis Block
+                            newBlock.hash = newBlock.getBlockHash();
+                            return self.db.addLevelDBData(0, newBlock)
+                                .then(()=>{return 1})
+                        } else {
+                            // Genesis block already exists so nothing to do here
+                            // except pass-through the height
+                            return height
+                        }
+                    }
+                )
+                .then((height) => {
+                    // Need previous block to determine
+                    // new height and previous block hash
+                    return self.getBlock(height - 1)
+                })
+                .then(prevBlock => {
+                    newBlock.height = prevBlock.height + 1;
+                    newBlock.previousBlockHash = prevBlock.hash;
+                    // Only can compute the hash AFTER the block is setup
+                    // since those details form part of the hash
+                    newBlock.hash = newBlock.getBlockHash();
+                    return self.db.addLevelDBData(newBlock.height, newBlock)
+                })
+                .then(result => resolve(result))
+                .catch(err => reject(err))
+        }).catch(err => console.error('Failed to add a new block - ', err))
     }
 
 

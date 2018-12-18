@@ -13,10 +13,10 @@ let myBlockChain = new BlockChain.Blockchain();
         let blockTest = new Block("Test Block - " + (i + 1) );
         myBlockChain
             .addBlock(blockTest)
-            .then(result => {
+            .then(() => {
                 i++;
                 console.log(`Added block ${i}`);
-                if (i < 10) {
+                if (i < 3) {
                 	theLoop(i);
 				}
             },(reason) => console.error(reason))
@@ -39,7 +39,7 @@ myBlockChain.getBlockHeight().then(height => console.log(height)).catch(err => c
 myBlockChain.getBlock(0).then(block => {
 	console.log('Get Block', JSON.stringify(block));
 }).catch((err) => {
-	console.error('Block does not exist');
+	console.error('Block does not exist - ',err);
 });
 
 // Validate Genesis Block
