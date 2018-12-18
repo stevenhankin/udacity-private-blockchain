@@ -16,7 +16,7 @@ let myBlockChain = new BlockChain.Blockchain();
             .then(() => {
                 i++;
                 console.log(`Added block ${i}`);
-                if (i < 3) {
+                if (i < 10) {
                 	theLoop(i);
 				}
             },(reason) => console.error(reason))
@@ -39,7 +39,7 @@ myBlockChain.getBlockHeight().then(height => console.log(height)).catch(err => c
 myBlockChain.getBlock(0).then(block => {
 	console.log('Get Block', JSON.stringify(block));
 }).catch((err) => {
-	console.error('Block does not exist - ',err);
+	console.error('Failed - ',err);
 });
 
 // Validate Genesis Block
@@ -75,12 +75,11 @@ myBlockChain.getBlock(3).then((block) => {
 	let blockAux = block;
 	blockAux.previousBlockHash = "jndininuud94j9i3j49dij9ijij39idj9oi";
 	myBlockChain._modifyBlock(blockAux.height, blockAux).then((blockModified) => {
-		if(blockModified){
 			console.log("The Block was modified");
-		} else {
+		} , () => {
 			console.log("The Block wasn't modified");
 		}
-	}).catch((err) => { console.log(err);});
+	).catch((err) => { console.log(err);});
 }).catch((err) => { console.log(err);});
 
 
