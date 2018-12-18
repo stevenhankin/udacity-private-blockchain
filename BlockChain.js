@@ -11,24 +11,14 @@ class Blockchain {
 
     constructor() {
         this.db = new LevelSandbox.LevelSandbox();
-        this.generateGenesisBlock();
+        // this.generateGenesisBlock();
     }
 
-    // Method to create a Genesis Block (always with height = 0)
-    // You have to options, because the method will always execute when you create your blockchain
-    // you will need to set this up statically or instead you can verify if the height !== 0 then you
-    // will not create the genesis block
-    generateGenesisBlock() {
-        let self = this;
-        // Only create the Genesis Block if chain is 0 height
-        this.getBlockHeight()
-            .then(
-                height => {
-                    if (height === 0) {
-                        self.addBlock(new Block("First block in the chain - Genesis Block"))
-                    }
-                })
-            .catch(reason => console.error('Failed to create Genesis Block: ', reason))
+    // Hard-coded genesis block
+    genesisBlock() {
+        let genesisBlock = new Block("First block in the chain - Genesis Block");
+        genesisBlock.hash = genesisBlock.getBlockHash();
+        return genesisBlock;
     }
 
 
@@ -40,8 +30,11 @@ class Blockchain {
 
 
     // Get Block By Height
+    // or return a message that the block does not exist
     getBlock(height) {
         return this.db.getLevelDBData(height)
+            .then(block => block,
+                () => {throw new Error(`Cannot find block ${height}`)})
     }
 
 
@@ -55,9 +48,10 @@ class Blockchain {
                 .then(height => {
                         if (height === 0) {
                             // Empty blockchain; create Genesis Block
-                            newBlock.hash = newBlock.getBlockHash();
-                            return self.db.addLevelDBData(0, newBlock)
-                                .then(()=>{return 1})
+                            return self.db.addLevelDBData(0, self.genesisBlock())
+                                .then(() => {
+                                    return 1
+                                })
                         } else {
                             // Genesis block already exists so nothing to do here
                             // except pass-through the height
