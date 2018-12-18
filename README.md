@@ -1,13 +1,31 @@
 # Project #2. Private Blockchain
 
-This is Project 2, Private Blockchain, in this project I created the classes to manage my private blockchain, to be able to persist my blochchain I used LevelDB.
+This is Project 2, Private Blockchain. 
+In this project I created the classes to manage my private blockchain.
+The blockchain is persisted using LevelDB.
 
-## Setup project for Review.
+
+## Requirements
+
+[Node](http://nodejs.org/) is really easy to install & now include [NPM](https://npmjs.org/).
+You should be able to run the following command after the installation procedure
+below.
+
+    $ node --version
+    v8.11.3
+
+    $ npm --version
+    6.4.1
+
+
+## Installation
 
 To setup the project for review do the following:
-1. Download the project.
-2. Run command __npm install__ to install the project dependencies.
-3. Run command __node simpleChain.js__ in the root directory.
+
+    $ git clone https://github.com/stevenhankin/udacity-private-blockchain.git
+    $ cd udacity-private-blockchain
+    $ npm install
+
 
 ## Testing the project
 
