@@ -33,8 +33,8 @@ class Blockchain {
     // or return a message that the block does not exist
     getBlock(height) {
         return this.db.getLevelDBData(height)
-            .then(block => block,
-                () => {throw new Error(`Cannot find block ${height}`)})
+                .then(block => block,
+                    () => {throw new Error(`Cannot find block ${height}`)})
     }
 
 
