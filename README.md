@@ -38,12 +38,12 @@ Resource | Description | Example
 Get block | /block/{height} | `curl --location --request GET "http://localhost:8000/block/1"`
 Get BlockChain info | /info | `curl --location --request GET "http://localhost:8000/info"`
 Validate BlockChain | /validateChain | `curl --location --request GET "http://localhost:8000/validateChain"`
-Add Block | /block | `curl --location --request POST "http://localhost:8000/block" --header "Content-Type: application/json" \                              --data "{                                               \"body\": \"Testing block with test string data\"                                          }"`
+Add Block | /block | `curl --location --request POST "http://localhost:8000/block" --header "Content-Type: application/json" --data "{ \"body\": \"Testing block with test string data\" }"`
 
 
 ## Testing the project
 
-Note: This only works if server.js is NOT running; this is because the LevelDB cannot be mounted in 2 runtimes concurrently.
+Note: This only works if server.js is NOT running (otherwise a EADDRINUSE will result).
 
 The file __simpleChain.js__ in the root directory has all the code to be able to test the project, please review the comments in the file and uncomment the code to be able to test each feature implemented:
 

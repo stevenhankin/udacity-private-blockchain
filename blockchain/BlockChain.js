@@ -2,7 +2,6 @@
 |  Class with a constructor for new blockchain 		|
 |  ================================================*/
 
-// const SHA256 = require('crypto-js/sha256');
 const LevelSandbox = require('./LevelSandbox.js');
 const Block = require('./Block.js');
 
@@ -33,8 +32,10 @@ module.exports = class BlockChain {
     // or return a message that the block does not exist
     getBlock(height) {
         return this.db.getLevelDBData(height)
-                .then(block => block,
-                    () => {throw new Error(`Cannot find block ${height}`)})
+            .then(block => block,
+                () => {
+                    throw new Error(`Cannot find block ${height}`)
+                })
     }
 
 
@@ -126,6 +127,9 @@ module.exports = class BlockChain {
             // so that we know when we've checked ALL the blocks
             self.getBlockHeight()
                 .then((height) => {
+                    if (height === 0) {
+                        resolve();
+                    }
                     this.db.getBlockIndexStream()
                         .on('data', block => {
                             self.validateBlock(block)
