@@ -4,7 +4,7 @@
 
 const SHA256 = require("crypto-js/sha256");
 
-class Block {
+module.exports = class Block {
     constructor(data) {
         // Default properties for a new block
         this.hash = '';
@@ -24,6 +24,4 @@ class Block {
     getBlockHash() {
         return SHA256(SHA256(JSON.stringify({...this,hash:''})).toString()).toString();
     }
-}
-
-module.exports = Block;
+};

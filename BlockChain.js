@@ -2,11 +2,11 @@
 |  Class with a constructor for new blockchain 		|
 |  ================================================*/
 
-const SHA256 = require('crypto-js/sha256');
+// const SHA256 = require('crypto-js/sha256');
 const LevelSandbox = require('./LevelSandbox.js');
 const Block = require('./Block.js');
 
-class Blockchain {
+module.exports = class BlockChain {
 
 
     constructor() {
@@ -15,7 +15,7 @@ class Blockchain {
     }
 
     // Hard-coded genesis block
-    genesisBlock() {
+    static genesisBlock() {
         let genesisBlock = new Block("First block in the chain - Genesis Block");
         genesisBlock.hash = genesisBlock.getBlockHash();
         return genesisBlock;
@@ -48,7 +48,7 @@ class Blockchain {
                 .then(height => {
                         if (height === 0) {
                             // Empty blockchain; create Genesis Block
-                            return self.db.addLevelDBData(0, self.genesisBlock())
+                            return self.db.addLevelDBData(0, BlockChain.genesisBlock())
                                 .then(() => {
                                     return 1
                                 })
@@ -101,7 +101,7 @@ class Blockchain {
     }
 
 
-    // Validate Blockchain
+    // Validate BlockChain
     // Return a Promise that will resolve to an array of invalid blocks
     // which is empty if all blocks are valid
     validateChain() {
@@ -122,14 +122,14 @@ class Blockchain {
                     }
                 }
             };
-            // Need to know the blockchain height before we start
+            // Need to know the BlockChain height before we start
             // so that we know when we've checked ALL the blocks
             self.getBlockHeight()
                 .then((height) => {
                     this.db.getBlockIndexStream()
                         .on('data', block => {
                             self.validateBlock(block)
-                                .then((message) => chainValidator(height),
+                                .then(() => chainValidator(height),
                                     (reason) => {
                                         // All invalid blocks are appended
                                         // to array for reporting afterwards
@@ -155,6 +155,4 @@ class Blockchain {
         });
     }
 
-}
-
-module.exports.Blockchain = Blockchain;
+};

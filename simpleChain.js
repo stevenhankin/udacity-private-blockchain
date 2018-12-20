@@ -4,7 +4,7 @@
 
 const BlockChain = require('./BlockChain.js');
 const Block = require('./Block.js');
-let myBlockChain = new BlockChain.Blockchain();
+let myBlockChain = new BlockChain();
 
 
 // Test: Each second, add one block to blockchain

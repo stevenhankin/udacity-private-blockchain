@@ -1,11 +1,11 @@
-# Project #2. Private Blockchain
+# Project #3 - Private Blockchain with Web API
 
-This is Project 2, Private Blockchain. 
-In this project I created the classes to manage my private blockchain.
-The blockchain is persisted using LevelDB.
+The blockchain is persisted using LevelDB and made externally available
+via a Web API (HAPI framework)
 
+## Setup
 
-## Requirements
+### Requirements
 
 [Node](http://nodejs.org/) is really easy to install & now include [NPM](https://npmjs.org/).
 You should be able to run the following command after the installation procedure
@@ -17,8 +17,7 @@ below.
     $ npm --version
     6.4.1
 
-
-## Installation
+### Installation
 
 To setup the project for review do the following:
 
@@ -26,8 +25,25 @@ To setup the project for review do the following:
     $ cd udacity-private-blockchain
     $ npm install
 
+### Running the project
+To start the Web API on **localhost:8000**, run the following:
+
+    $ npm start
+
+
+## API
+
+Resource | Description | Example
+--- | --- | ---
+Get block | /block/{height} | `curl --location --request GET "http://localhost:8000/block/1"`
+Get BlockChain info | /info | `curl --location --request GET "http://localhost:8000/info"`
+Validate BlockChain | /validateChain | `curl --location --request GET "http://localhost:8000/validateChain"`
+Add Block | /block | `curl --location --request POST "http://localhost:8000/block" --header "Content-Type: application/json" \                              --data "{                                               \"body\": \"Testing block with test string data\"                                          }"`
+
 
 ## Testing the project
+
+Note: This only works if server.js is NOT running; this is because the LevelDB cannot be mounted in 2 runtimes concurrently.
 
 The file __simpleChain.js__ in the root directory has all the code to be able to test the project, please review the comments in the file and uncomment the code to be able to test each feature implemented:
 
@@ -122,8 +138,9 @@ myBlockChain.validateChain().then((errorLog) => {
 
 This function validates the whole chain and return a list of errors found during the validation.
 
-## What do I learned with this Project
 
-* I was able to identify the basic data model for a Blockchain application.
-* I was able to use LevelDB to persist the Blockchain data.
-* I was able to write algorithms for basic operations in the Blockchain.
+## What I learned with this Project
+
+* Exposing blockchain interaction via a Web API
+* RESTful API testing using Postman
+* Error handling using Boom
