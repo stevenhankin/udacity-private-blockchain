@@ -43,9 +43,11 @@ Add Block | /block | `curl --location --request POST "http://localhost:8000/bloc
 
 ## Testing the project
 
+Apart from testing the API (with examples available in the API section above), the following utilities can be used to setup and modify blockchain data to help with API testing.
+
 Note: This only works if server.js is NOT running (otherwise a EADDRINUSE will result).
 
-The file __simpleChain.js__ in the root directory has all the code to be able to test the project, please review the comments in the file and uncomment the code to be able to test each feature implemented:
+The file __simpleChain.js__ in the blockchain subdirectory has code to facilitate testing the project, please review the comments in the file and uncomment the code to be able to test each feature implemented:
 
 * Uncomment the function:
 ```
