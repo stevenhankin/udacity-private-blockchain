@@ -20,7 +20,6 @@
     "lokijs": "^1.5.5"
   },
   "devDependencies": {
-    "@types/node": "^10.12.15",
-    "require": "^2.4.20"
+    "@types/node": "^10.12.18"
   }
 }
