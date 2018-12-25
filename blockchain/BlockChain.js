@@ -4,12 +4,14 @@
 
 const LevelSandbox = require('./LevelSandbox.js');
 const Block = require('./Block.js');
+const MemPool = require('./MemPool.js');
 
 module.exports = class BlockChain {
 
 
     constructor() {
         this.db = new LevelSandbox.LevelSandbox();
+        this.MemPool = new MemPool();
         // this.generateGenesisBlock();
     }
 
@@ -18,6 +20,11 @@ module.exports = class BlockChain {
         let genesisBlock = new Block("First block in the chain - Genesis Block");
         genesisBlock.hash = genesisBlock.getBlockHash();
         return genesisBlock;
+    }
+
+
+    requestValidation(requestAddress){
+        MemPool.addARequestValidation(requestAddress);
     }
 
 

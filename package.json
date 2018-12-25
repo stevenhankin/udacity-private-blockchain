@@ -16,7 +16,8 @@
     "hapi": "^17.8.1",
     "hex2ascii": "0.0.3",
     "joi": "^14.3.0",
-    "level": "^4.0.0"
+    "level": "^4.0.0",
+    "lokijs": "^1.5.5"
   },
   "devDependencies": {
     "@types/node": "^10.12.15",

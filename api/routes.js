@@ -22,31 +22,31 @@ module.exports = function assignRoutes(server) {
                 return Boom.badRequest('Invalid request - please check API');
             }
         },
-        options: {
-            validate: {
-                // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
-                // See https://en.bitcoin.it/wiki/Address
-                payload: {
-                    address: Joi.string().min(26).max(35).regex(/^[1|3]/)
-                },
-                // Validation Response will be in this example format:
-                // {
-                //     "walletAddress": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
-                //     "requestTimeStamp": "1544451269",
-                //     "message": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL:1544451269:starRegistry",
-                //     "validationWindow": 300
-                // }
-                // ...where:
-                //    Message format = [walletAddress]:[timeStamp]:starRegistry
-                //    validationWindow = seconds left until validation expires
-                response: {
-                    walletAddress: Joi.string(),
-                    requestTimeStamp:Joi.string(),
-                    message:Joi.string(),
-                    validationWindow:Joi.string()
-                }
-            }
-        }
+        // config: {
+        //     validate: {
+        //         // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
+        //         // See https://en.bitcoin.it/wiki/Address
+        //         payload: {
+        //             address: Joi.any().required() //.required().min(26).max(35).regex(/^[1|3]/)
+        //         },
+        //         // Validation Response will be in this example format:
+        //         // {
+        //         //     "walletAddress": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
+        //         //     "requestTimeStamp": "1544451269",
+        //         //     "message": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL:1544451269:starRegistry",
+        //         //     "validationWindow": 300
+        //         // }
+        //         // ...where:
+        //         //    Message format = [walletAddress]:[timeStamp]:starRegistry
+        //         //    validationWindow = seconds left until validation expires
+        //         response: {
+        //             walletAddress: Joi.string(),
+        //             requestTimeStamp:Joi.string(),
+        //             message:Joi.string(),
+        //             validationWindow:Joi.string()
+        //         }
+        //     }
+        // }
     });
 
     // Web API POST endpoint validates message signature with JSON response
