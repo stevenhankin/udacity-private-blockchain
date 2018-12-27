@@ -23,9 +23,17 @@ module.exports = class BlockChain {
     }
 
 
+    // Returns a requestObject from the mempool
     requestValidation(requestAddress){
-        MemPool.addARequestValidation(requestAddress);
+        return this.MemPool.addARequestValidation(requestAddress);
     }
+
+    //
+    validate() {
+        // TODO
+    }
+
+
 
 
     // Get block height by counting blocks in chain

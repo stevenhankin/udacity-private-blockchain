@@ -14,7 +14,9 @@ module.exports = function assignRoutes(server) {
         path: '/requestValidation',
         handler: async function (request, h) {
             try {
-                const requestAddress = request.payload.body;
+                const requestAddress = request.payload.address;
+                // console.log('payload',request.payload)
+                console.log('requestAddress',requestAddress)
                 const validationResponse = await myBlockChain.requestValidation(requestAddress);
 
                 return validationResponse;
