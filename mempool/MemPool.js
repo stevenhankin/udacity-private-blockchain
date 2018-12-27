@@ -23,7 +23,7 @@ module.exports = class MemPool {
      */
     constructor() {
         this.db = new loki('blockchain.db');
-        this.request = this.db.addCollection('request');
+        this.requests = this.db.addCollection('request');
     }
 
 
@@ -40,16 +40,16 @@ module.exports = class MemPool {
      */
     _upsertRequest(request) {
         console.log('_upsertRequest')
-        const existingRequest = this.request.findObject({walletAddress: request.getWalletAddress()});
+        const existingRequest = this.requests.findObject({walletAddress: request.getWalletAddress()});
         console.log('existingRequest', existingRequest)
         if (existingRequest) {
             console.log('Request already exists!', existingRequest)
             const updatedRequest = existingRequest.refreshedValidationWindow(VALIDATION_WINDOW)
             console.log('updatedRequest', updatedRequest);
-            this.request.update(updatedRequest);
+            this.requests.update(updatedRequest);
         } else {
             console.log('new request..')
-            this.request.insert(request);
+            this.requests.insert(request);
             // Once the Validation Window expires, the request will be removed from mempool
             setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
         }
@@ -70,17 +70,16 @@ module.exports = class MemPool {
     _removeRequest({walletAddress}) {
         console.log('called _removeRequest', walletAddress);
         return () => {
-            const req = this
-                .request
-                .findAndRemove({walletAddress});
+            this.requests.findAndRemove({walletAddress});
         }
     }
 
 
     /**
+     * Updates an existing request (validation window) or creates new
      *
-     * @param requestAddress
-     * @returns {module.Request|*}
+     * @param requestAddress Wallet address
+     * @returns {module.Request|*} A new or modified request
      */
     addARequestValidation(requestAddress) {
         const request = new Request(requestAddress, VALIDATION_WINDOW);
