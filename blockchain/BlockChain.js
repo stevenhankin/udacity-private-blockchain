@@ -4,7 +4,7 @@
 
 const LevelSandbox = require('./LevelSandbox.js');
 const Block = require('./Block.js');
-const MemPool = require('./MemPool.js');
+const MemPool = require('../mempool/MemPool.js');
 
 module.exports = class BlockChain {
 
