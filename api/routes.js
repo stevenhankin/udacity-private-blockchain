@@ -5,7 +5,14 @@ const Block = require('../blockchain/Block.js');
 let myBlockChain = new BlockChain();
 
 
-module.exports = function assignRoutes(server) {
+module.exports = function assignRoutes(server, memPool) {
+
+    //
+    // requestValidation(requestAddress){
+    //     const requestObject = this.MemPool.addARequestValidation(requestAddress);
+    //     console.log('** requestObject',requestObject)
+    //     return requestObject;
+    // }
 
 
     // Web API POST endpoint to validate request with JSON response
@@ -16,18 +23,26 @@ module.exports = function assignRoutes(server) {
             try {
                 const requestAddress = request.payload.address;
                 // console.log('payload',request.payload)
-                console.log('requestAddress',requestAddress)
-                const validationResponse = await myBlockChain.requestValidation(requestAddress);
+                console.log('requestAddress', requestAddress)
+                // const validationResponse = await myBlockChain.requestValidation(requestAddress);
+                const validationResponse = await memPool.addARequestValidation(requestAddress);
 
                 return validationResponse;
             } catch (e) {
-                return Boom.badRequest('Invalid request - please check API');
+                return Boom.badRequest(e.message);
             }
         },
+        options: {
+            validate: {
+                payload: {
+                    // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
+                    // See https://en.bitcoin.it/wiki/Address
+                    address: Joi.string().required().min(26).max(35).regex(/^[1|3]/)
+                }
+            }
+        }
         // config: {
         //     validate: {
-        //         // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
-        //         // See https://en.bitcoin.it/wiki/Address
         //         payload: {
         //             address: Joi.any().required() //.required().min(26).max(35).regex(/^[1|3]/)
         //         },
@@ -57,31 +72,19 @@ module.exports = function assignRoutes(server) {
         path: '/message-signature/validate',
         handler: async function (request, h) {
             try {
-                const body = request.payload.body;
-                const block = new Block(body);
-                const validationResponse = await myBlockChain.validateMessageSignature(request);
-                // Example response format:
-                // {
-                //     "registerStar": true,
-                //     "status": {
-                //     "address": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
-                //         "requestTimeStamp": "1544454641",
-                //         "message": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL:1544454641:starRegistry",
-                //         "validationWindow": 193,
-                //         "messageSignature": true
-                //     }
-                // }
+                const address = request.payload.address;
+                const signature = request.payload.signature;
+                const validationResponse = memPool.validateRequestByWallet(address, signature);
                 return validationResponse;
             } catch (e) {
-                return Boom.badRequest('Invalid request - please check API');
+                return Boom.badRequest(e.message);
             }
         },
         options: {
             validate: {
                 payload: {
-                    // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
-                    // See https://en.bitcoin.it/wiki/Address
-                    address: Joi.string().min(26).max(35).regex(/^[1|3]/)
+                    address: Joi.string().required(),
+                    signature: Joi.string().required()
                 }
             }
         }

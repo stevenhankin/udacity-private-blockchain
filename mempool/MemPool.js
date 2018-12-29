@@ -1,5 +1,6 @@
 const loki = require('lokijs');
 const Request = require('./Request');
+const BitcoinMessage = require('bitcoinjs-message');
 
 /**
  * LokiJS is an in-memory synchronous database
@@ -8,7 +9,7 @@ const Request = require('./Request');
  */
 
 // const VALIDATION_WINDOW = 60 * 5; // Validation window is set to 5 minutes
-const VALIDATION_WINDOW = 20; //TODO : remove this test setting
+const VALIDATION_WINDOW = 20000; //TODO : remove this test setting
 
 module.exports = class MemPool {
     /**
@@ -22,8 +23,8 @@ module.exports = class MemPool {
      * @fires lokijs.Loki#addCollection
      */
     constructor() {
-        this.db = new loki('blockchain.db');
-        this.requests = this.db.addCollection('request');
+        this.db = new loki("blockchain.db");
+        this.requests = this.db.addCollection("request");
     }
 
 
@@ -31,7 +32,9 @@ module.exports = class MemPool {
      * Updates an existing request or adds if new
      *
      * When a new request is created it is set with the default validation window
-     * and a timeout call to remove the request once the window expires. If the
+     * and a timeout call to remove the request once the window expires.
+     * If a successful validation occurs before the timeout, the timeout will be cancelled
+     * and the message flagged as correctly signed.
      *
      * @fires lokijs.Collection#update
      * @fires lokijs.Collection#insert
@@ -40,10 +43,13 @@ module.exports = class MemPool {
      * @private
      */
     _upsertRequest(request) {
-        try {
+
             const existingRequest = this.requests.findObject({walletAddress: request.getWalletAddress()});
             if (existingRequest) {
-                // Existing request: make sure validation window is correct
+                if (existingRequest.messageSignature) {
+                    throw new Error("Request was already signed");
+                }
+                // Existing request: make sure validation window is current
                 let updatedRequest = new Request(existingRequest);
                 Object.assign(updatedRequest, existingRequest);
                 // Only update mempool if validation window changed
@@ -52,14 +58,11 @@ module.exports = class MemPool {
                 }
                 return updatedRequest;
             } else {
-                this.requests.insert(request);
                 // Once the Validation Window expires, the request will be removed from mempool
-                setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
+                request.timeoutID = setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
+                this.requests.insert(request);
                 return request;
             }
-        } catch (e) {
-            console.error(e)
-        }
 
     }
 
@@ -86,18 +89,55 @@ module.exports = class MemPool {
      * Updates an existing request (validation window) or creates new
      *
      * @param walletAddress
-     * @returns {module.Request|*} A new or modified request
+     * @returns {Request} A new or modified request
      */
     addARequestValidation(walletAddress) {
-        const request = new Request({walletAddress, validationWindow:VALIDATION_WINDOW});
+        const request = new Request({walletAddress, validationWindow: VALIDATION_WINDOW});
         const newRequest = this._upsertRequest(request);
-        // LokiJS metadata will be stripped out by following constructor
+        // LokiJS metadata will be stripped out by constructor
         return new Request(newRequest)
     }
 
 
-    validateRequestByWallet() {
-        // TODO : Return a validRequest
+    /**
+     * Returns the request for the wallet address
+     * There is only either 1 or 0 requests in the mempool for an address
+     *
+     * @param walletAddress
+     * @returns {Request}
+     */
+    validateRequestByWallet(walletAddress, signature) {
+        console.log('Searching for address', walletAddress)
+        const request = this.requests.find({walletAddress})[0];
+        if (!request) {
+            throw new Error('No pending request for address');
+        }
+        if (request.messageSignature) {
+            throw new Error('Request already successfully signed - you can already register a star');
+        }
+        console.log('request IS', request)
+        console.log(`verify: ${request.message},${walletAddress},${signature}`)
+        const isValid = BitcoinMessage.verify(request.message, walletAddress, signature);
+        if (isValid) {
+            // Once correctly signed, the timeout is cancelled
+            clearTimeout(request.timeoutID);
+            // Flag this request as permissioned for registering a single star
+            request.messageSignature = true;
+            this.requests.update(request);
+            // Prepare return payload
+            const validRequest = {
+                "registerStar": true,
+                "status": {
+                    "address": request.walletAddress,
+                    "requestTimeStamp": request.requestTimeStamp,
+                    "message": request.message,
+                    "validationWindow": request.validationWindow,
+                    "messageSignature": true
+                }
+            };
+            return validRequest;
+        }
+        throw new Error("Invalid signature");
     }
 
 

@@ -1,5 +1,6 @@
 'use strict';
 
+const MemPool = require('./mempool/MemPool.js');
 const Hapi = require('hapi');
 const assignRoutes = require('./api/routes.js')
 
@@ -10,8 +11,9 @@ const server = Hapi.server({
     port: 8000
 });
 
+let memPool = new MemPool();
 
-assignRoutes(server);
+assignRoutes(server, memPool);
 
 
 // Start the server

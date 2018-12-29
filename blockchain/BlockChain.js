@@ -4,18 +4,21 @@
 
 const LevelSandbox = require('./LevelSandbox.js');
 const Block = require('./Block.js');
-const MemPool = require('../mempool/MemPool.js');
+
 
 module.exports = class BlockChain {
 
 
     constructor() {
         this.db = new LevelSandbox.LevelSandbox();
-        this.MemPool = new MemPool();
-        // this.generateGenesisBlock();
     }
 
-    // Hard-coded genesis block
+
+    /**
+     * Hard-coded genesis block
+     *
+     * @returns {module.Block|*}
+     */
     static genesisBlock() {
         let genesisBlock = new Block("First block in the chain - Genesis Block");
         genesisBlock.hash = genesisBlock.getBlockHash();
@@ -24,29 +27,64 @@ module.exports = class BlockChain {
 
 
     // Returns a requestObject from the mempool
-    requestValidation(requestAddress){
-        const requestObject = this.MemPool.addARequestValidation(requestAddress);
-        console.log('** requestObject',requestObject)
-        return requestObject;
-    }
 
+    // /**
+    //  * Requests a validation object (which will be stored in mempool)
+    //  *
+    //  * @param requestAddress Wallet address
+    //  * @returns {module.Request|*}  Request object with current validation window
+    //  */
+    // requestValidation(requestAddress){
+    //     const requestObject = this.MemPool.addARequestValidation(requestAddress);
+    //     console.log('** requestObject',requestObject)
+    //     return requestObject;
+    // }
+
+
+    // /**
+    //  * Validate the signature for a request
+    //  *
+    //  * If valid, the timeout will be removed from the request in the mempool
+    //  *
+    //  * @param {string} address
+    //  * @param {string} signature
+    //  */
+    // validateRequestByWallet(address,signature) {
+    //     console.log('validateRequestByWallet');
+    //     const request = this.MemPool.getRequest(address);
+    //     if (!request) {
+    //         throw Error('No such request pending');
+    //     }
+    //     console.log(request.getMessage());
+    //     console.log(`verify: ${request.getMessage()},${address},${signature}`)
+    //     let isValid = BitcoinMessage.verify(request.getMessage(), address, signature);
+    //     if (isValid) {
     //
-    validate() {
-        // TODO
-    }
+    //     }
+    //     console.log('isValid',isValid)
+    //     console.log('request---',JSON.stringify(request))
+    //     return {isValid}//TODO
+    // }
 
 
-
-
-    // Get block height by counting blocks in chain
-    // This will be equivalent to <height of top block> + 1
+    /**
+     * Get block height by counting blocks in chain
+     * This will be equivalent to <height of top block> + 1
+     *
+     * @returns {number} block height
+     */
     getBlockHeight() {
         return this.db.getBlocksCount()
     }
 
 
-    // Get Block By Height
-    // or return a message that the block does not exist
+    /**
+     * Gets Block By Height
+     * or throw error that the block does not exist
+     *
+     * @param height
+     * @returns {Promise}
+     */
     getBlock(height) {
         return this.db.getLevelDBData(height)
             .then(block => block,
@@ -56,9 +94,14 @@ module.exports = class BlockChain {
     }
 
 
-    // Add a new block to the chain
-    // Additionally, when adding a new block to the chain, code checks if a Genesis block already exists
-    // If not, one is created before adding the a block
+    /**
+     * Adds a new block to the chain
+     * Additionally, when adding a new block to the chain, code checks if a Genesis block already exists
+     * If not, one is created before adding the a block
+     *
+     * @param newBlock
+     * @returns {Promise<any | void>}
+     */
     addBlock(newBlock) {
         let self = this;
         return new Promise((resolve, reject) => {
@@ -96,7 +139,12 @@ module.exports = class BlockChain {
     }
 
 
-    // Validate if Block is being tampered by Block Height
+    /**
+     * Validates Block at specified height has not been tampered with
+     *
+     * @param height
+     * @returns {Promise<any>}
+     */
     validateBlock(height) {
         let self = this;
         return new Promise((resolve, reject) => {
@@ -119,9 +167,13 @@ module.exports = class BlockChain {
     }
 
 
-    // Validate BlockChain
-    // Return a Promise that will resolve to an array of invalid blocks
-    // which is empty if all blocks are valid
+    /**
+     * Validates BlockChain
+     * Return a Promise that will resolve to an array of invalid blocks
+     * which is empty if all blocks are valid
+     *
+     * @returns {Promise<any>}
+     */
     validateChain() {
         let self = this;
         let blockCount = 0;
@@ -165,8 +217,15 @@ module.exports = class BlockChain {
     }
 
 
-    // Utility Method to Tamper a Block for Test Validation
-    // This method is for testing purpose
+    /**
+     * Utility Method to Tamper a Block for Test Validation
+     * This method is for testing purpose
+     *
+     * @param height
+     * @param block
+     * @returns {Promise<any>}
+     * @private
+     */
     _modifyBlock(height, block) {
         let self = this;
         return new Promise((resolve, reject) => {

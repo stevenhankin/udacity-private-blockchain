@@ -70,4 +70,15 @@ module.exports = class Request {
     getWalletAddress() {
         return this.walletAddress;
     }
+
+
+    /**
+     * Getter
+     *
+     * @returns {string}
+     */
+    getMessage(){
+        return this.message;
+    }
+
 };
