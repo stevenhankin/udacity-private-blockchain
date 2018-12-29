@@ -80,15 +80,19 @@ module.exports = class BlockChain {
 
     /**
      * Utility to inject a decoded story into block
+     * (but NOT for genesis block)
      *
      * @param block
      * @return {Block} block with a storyDecoded
      * @private
      */
     _withDecodedStory(block) {
-        const encodedStory = block.body.star.story;
-        const storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
-        block.body.star.storyDecoded = storyDecoded;
+        console.log('_withDecodedStory', block);
+        if (block.height > 0) {
+            const encodedStory = block.body.star.story;
+            const storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
+            block.body.star.storyDecoded = storyDecoded;
+        }
         return block;
     }
 
@@ -101,7 +105,7 @@ module.exports = class BlockChain {
      * @returns {Promise}
      */
     getBlock(height) {
-        let self=this;
+        let self = this;
         return this.db.getLevelDBData(height)
             .then(block => {
                     return self._withDecodedStory(block);
@@ -243,7 +247,7 @@ module.exports = class BlockChain {
      * @returns {Promise<Block>} Promise that represents block for supplied hash
      */
     getStarByHash(hash) {
-        let self=this;
+        let self = this;
         return new Promise((resolve, reject) => {
             this.db.getBlockStream()
                 .on('data', blockStr => {
@@ -252,10 +256,36 @@ module.exports = class BlockChain {
                         console.log(testBlock)
                         const block = self._withDecodedStory(testBlock);
                         console.log(block);
-                        resolve( block )
+                        resolve(block)
                     }
                 })
                 .on('end', () => reject(new Error('No such hash in blockchain')))
+        });
+    }
+
+
+    /**
+     * Returns array of Stars with matching address
+     *
+     * @param {string} address Address of blocks to match
+     * @return {Promise<Block[]>} Promise that represents array of blocks for supplied wallet address
+     */
+    getStarsByAddress(address) {
+        let self = this;
+        let blockArray = [];
+        return new Promise((resolve, reject) => {
+            this.db.getBlockStream()
+                .on('data', blockStr => {
+                    const testBlock = JSON.parse(blockStr);
+                    // console.log(testBlock)
+                    console.log('testBlock:', testBlock);
+                    if (testBlock && testBlock.body && testBlock.body.address === address) {
+                        const block = self._withDecodedStory(testBlock);
+                        blockArray.push(block);
+                        // console.log(block);
+                    }
+                })
+                .on('end', () => resolve(blockArray))
         });
     }
 

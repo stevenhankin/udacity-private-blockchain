@@ -152,6 +152,31 @@ module.exports = function assignRoutes(server, memPool) {
 
 
     /**
+     * Get Star block by wallet address (blockchain identity)
+     * with JSON response.
+     *
+     * Returns a list of Stars because of one wallet address
+     * can be used to register multiple Stars
+     *
+     * http://localhost:8000/stars/address:[ADDRESS]
+     */
+    server.route({
+            method: 'GET',
+            path: '/stars/address:{address}',
+            handler: async function (request, h) {
+                try {
+                    const address = request.params.address;
+                    const blockArray = await myBlockChain.getStarsByAddress(address);
+                    return blockArray;
+                } catch (e) {
+                    return Boom.badRequest(e.message);
+                }
+            }
+        }
+    );
+
+
+    /**
      * Get star block by star block height with JSON response.
      *
      * http://localhost:8000/block/[HEIGHT]
