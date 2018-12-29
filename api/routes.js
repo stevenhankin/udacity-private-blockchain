@@ -22,11 +22,7 @@ module.exports = function assignRoutes(server, memPool) {
         handler: async function (request, h) {
             try {
                 const requestAddress = request.payload.address;
-                // console.log('payload',request.payload)
-                console.log('requestAddress', requestAddress)
-                // const validationResponse = await myBlockChain.requestValidation(requestAddress);
                 const validationResponse = await memPool.addARequestValidation(requestAddress);
-
                 return validationResponse;
             } catch (e) {
                 return Boom.badRequest(e.message);
@@ -65,6 +61,7 @@ module.exports = function assignRoutes(server, memPool) {
         //     }
         // }
     });
+
 
     // Web API POST endpoint validates message signature with JSON response
     server.route({
@@ -109,7 +106,7 @@ module.exports = function assignRoutes(server, memPool) {
                     };
                     const body ={
                         address,
-                        encodedStar
+                        star:encodedStar
                     };
                     console.log('body:',body);
                     const block = new Block(body);
@@ -141,15 +138,19 @@ module.exports = function assignRoutes(server, memPool) {
             handler: async function (request, h) {
                 try {
                     const height = request.params.height;
-                    return await myBlockChain.getBlock(height);
+                    console.log('height',height);
+                    const block = await myBlockChain.getBlock(height);
+                    console.log('block:',(block));
+                    const encodedStory = block.body.star.story;
+                    const storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
+                    block.body.star.storyDecoded = storyDecoded;
+                    return block;
                 } catch (e) {
-                    return Boom.badRequest('No such block');
+                    return Boom.badRequest(e.message);
                 }
             }
         }
     );
-
-
 
 
     // Route for retrieving information on the Blockchain
@@ -187,5 +188,5 @@ module.exports = function assignRoutes(server, memPool) {
     });
 
 
-}
+};
 

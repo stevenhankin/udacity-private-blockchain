@@ -43,27 +43,29 @@ module.exports = class MemPool {
      * @private
      */
     _upsertRequest(request) {
-
-            const existingRequest = this.requests.findObject({walletAddress: request.getWalletAddress()});
-            if (existingRequest) {
-                if (existingRequest.messageSignature) {
-                    throw new Error("Request was already signed");
-                }
-                // Existing request: make sure validation window is current
-                let updatedRequest = new Request(existingRequest);
-                Object.assign(updatedRequest, existingRequest);
-                // Only update mempool if validation window changed
-                if (updatedRequest.refreshValidationWindow(VALIDATION_WINDOW)) {
-                    this.requests.update(updatedRequest);
-                }
-                return updatedRequest;
-            } else {
-                // Once the Validation Window expires, the request will be removed from mempool
-                request.timeoutID = setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
-                this.requests.insert(request);
-                return request;
+        const existingRequest = this.requests.findObject({walletAddress: request.getWalletAddress()});
+        if (existingRequest) {
+            if (existingRequest.messageSignature) {
+                throw new Error("Request was already signed");
             }
-
+            // Existing request: make sure validation window is current
+            // Note: the timestamp needs to be overridden
+            existingRequest.requestTimeStamp = request.requestTimeStamp;
+            let updatedRequest = new Request(existingRequest);
+            console.log('updatedRequest',updatedRequest);
+            Object.assign(existingRequest, updatedRequest);
+            this.requests.update(existingRequest);
+            return existingRequest;
+        } else {
+            // Once the Validation Window expires, the request will be removed from mempool
+            request.timeoutID = setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
+            // Since this is a new request, set the Original Timestamp
+            // so that if the request is resubmitted the validation
+            // window can be adjusted appropriately
+            request.origTimeStamp = request.requestTimeStamp;
+            this.requests.insert(request);
+            return request;
+        }
     }
 
 
@@ -94,8 +96,14 @@ module.exports = class MemPool {
     addARequestValidation(walletAddress) {
         const request = new Request({walletAddress, validationWindow: VALIDATION_WINDOW});
         const newRequest = this._upsertRequest(request);
-        // LokiJS metadata will be stripped out by constructor
-        return new Request(newRequest)
+        console.log(newRequest);
+        // LokiJS metadata and additional Request fields are stripped out
+        return {
+            "walletAddress":newRequest.walletAddress,
+            "requestTimestamp":newRequest.requestTimestamp,
+            "message":newRequest.message,
+            "validationWindow":newRequest.validationWindow
+        }
     }
 
 
