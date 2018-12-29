@@ -98,17 +98,17 @@ module.exports = function assignRoutes(server, memPool) {
                 const address = request.payload.address;
                 const star = request.payload.star;
                 const encodedStory = Buffer.from(star.story, 'utf8').toString('hex');
-                console.log('encodedStory:',encodedStory);
+                console.log('encodedStory:', encodedStory);
                 if (memPool.verifyAddressRequest(address)) {
                     const encodedStar = {
                         ...star,
-                        story:encodedStory
+                        story: encodedStory
                     };
-                    const body ={
+                    const body = {
                         address,
-                        star:encodedStar
+                        star: encodedStar
                     };
-                    console.log('body:',body);
+                    console.log('body:', body);
                     const block = new Block(body);
                     await myBlockChain.addBlock(block);
                     // Make sure only one Star can be send in the request
@@ -130,20 +130,18 @@ module.exports = function assignRoutes(server, memPool) {
     });
 
 
-    // Route for retrieving a block
-    // at a specified height
+    /**
+     * Get Star block by hash with JSON response.
+     *
+     * http://localhost:8000/stars/hash:[HASH]
+     */
     server.route({
             method: 'GET',
-            path: '/block/{height}',
+            path: '/stars/hash:{hash}',
             handler: async function (request, h) {
                 try {
-                    const height = request.params.height;
-                    console.log('height',height);
-                    const block = await myBlockChain.getBlock(height);
-                    console.log('block:',(block));
-                    const encodedStory = block.body.star.story;
-                    const storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
-                    block.body.star.storyDecoded = storyDecoded;
+                    const hash = request.params.hash;
+                    const block = await myBlockChain.getStarByHash(hash);
                     return block;
                 } catch (e) {
                     return Boom.badRequest(e.message);
@@ -153,8 +151,34 @@ module.exports = function assignRoutes(server, memPool) {
     );
 
 
-    // Route for retrieving information on the Blockchain
-    // Currently only the height is returned
+    /**
+     * Get star block by star block height with JSON response.
+     *
+     * http://localhost:8000/block/[HEIGHT]
+     */
+    server.route({
+            method: 'GET',
+            path: '/block/{height}',
+            handler: async function (request, h) {
+                try {
+                    const height = request.params.height;
+                    const block = await myBlockChain.getBlock(height);
+                    return block;
+                } catch (e) {
+                    return Boom.badRequest(e.message);
+                }
+            }
+        }
+    );
+
+
+    /**
+     * Get current info.
+     *
+     * Only height is currently returned.
+     *
+     * http://localhost:8000/info
+     */
     server.route({
         method: 'GET',
         path: '/info',

@@ -54,6 +54,11 @@ class LevelSandbox {
         return this.db.createKeyStream();
     }
 
+    // Return a readable stream of all the blocks
+    getBlockStream() {
+        return this.db.createValueStream();
+    }
+
 }
 
 module.exports.LevelSandbox = LevelSandbox;

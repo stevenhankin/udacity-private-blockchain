@@ -79,6 +79,21 @@ module.exports = class BlockChain {
 
 
     /**
+     * Utility to inject a decoded story into block
+     *
+     * @param block
+     * @return {Block} block with a storyDecoded
+     * @private
+     */
+    _withDecodedStory(block) {
+        const encodedStory = block.body.star.story;
+        const storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
+        block.body.star.storyDecoded = storyDecoded;
+        return block;
+    }
+
+
+    /**
      * Gets Block By Height
      * or throw error that the block does not exist
      *
@@ -86,10 +101,13 @@ module.exports = class BlockChain {
      * @returns {Promise}
      */
     getBlock(height) {
+        let self=this;
         return this.db.getLevelDBData(height)
-            .then(block => block,
+            .then(block => {
+                    return self._withDecodedStory(block);
+                },
                 () => {
-                    throw new Error(`Cannot find block ${height}`)
+                    throw new Error(`No block at height ${height}`)
                 })
     }
 
@@ -213,6 +231,31 @@ module.exports = class BlockChain {
                         })
                         .on('error', (err) => reject(err))
                 });
+        });
+    }
+
+    /**
+     * Returns block for Star data with matching hash
+     *
+     * If all blocks are read and none match then an error is thrown
+     *
+     * @param {string} hash Hash of block in blockchain to find
+     * @returns {Promise<Block>} Promise that represents block for supplied hash
+     */
+    getStarByHash(hash) {
+        let self=this;
+        return new Promise((resolve, reject) => {
+            this.db.getBlockStream()
+                .on('data', blockStr => {
+                    const testBlock = JSON.parse(blockStr);
+                    if (testBlock.hash === hash) {
+                        console.log(testBlock)
+                        const block = self._withDecodedStory(testBlock);
+                        console.log(block);
+                        resolve( block )
+                    }
+                })
+                .on('end', () => reject(new Error('No such hash in blockchain')))
         });
     }
 
