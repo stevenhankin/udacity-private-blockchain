@@ -141,7 +141,34 @@ module.exports = class MemPool {
     }
 
 
-    verifyAddressRequest() {
-        // TODO : Return isValid response
+    /**
+     * Verify that the address has been signed
+     *
+     * @param {string} walletAddress signed wallet address
+     * @returns {boolean} true if the address has already been verified with a correct signature
+     */
+    verifyAddressRequest(walletAddress) {
+        const request = this.requests.find({walletAddress})[0];
+        if (!request) {
+            throw new Error('Not a valid address')
+        }
+        if (!request.messageSignature) {
+            throw new Error('Address not signed/authorized')
+        }
+        return true;
     }
+
+
+    /**
+     * Removes request from MemPool
+     *
+     * Used to ensure that a request can only be used
+     * to claim one star on the blockchain
+     *
+     * @param {string} walletAddress address to remove from mempool
+     */
+    removeRequestFromPool(walletAddress) {
+        this.requests.findAndRemove({walletAddress});
+    }
+
 };

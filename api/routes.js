@@ -91,6 +91,48 @@ module.exports = function assignRoutes(server, memPool) {
     });
 
 
+    // Route for adding a block
+    // The complete block is returned to the client
+    server.route({
+        method: 'POST',
+        path: '/block',
+        handler: async function (request, h) {
+            try {
+                const address = request.payload.address;
+                const star = request.payload.star;
+                const encodedStory = Buffer.from(star.story, 'utf8').toString('hex');
+                console.log('encodedStory:',encodedStory);
+                if (memPool.verifyAddressRequest(address)) {
+                    const encodedStar = {
+                        ...star,
+                        story:encodedStory
+                    };
+                    const body ={
+                        address,
+                        encodedStar
+                    };
+                    console.log('body:',body);
+                    const block = new Block(body);
+                    await myBlockChain.addBlock(block);
+                    // Make sure only one Star can be send in the request
+                    memPool.removeRequestFromPool(address);
+                    return block;
+                }
+            } catch (e) {
+                return Boom.badRequest(e.message);
+            }
+        },
+        options: {
+            validate: {
+                payload: {
+                    address: Joi.string().required(),
+                    star: Joi.object().required()
+                }
+            }
+        }
+    });
+
+
     // Route for retrieving a block
     // at a specified height
     server.route({
@@ -108,25 +150,6 @@ module.exports = function assignRoutes(server, memPool) {
     );
 
 
-    // Route for adding a block
-    // The complete block is returned to the client
-    server.route({
-        method: 'POST',
-        path: '/block',
-        handler: async function (request, h) {
-            try {
-                if (!request.payload) {
-                    return Boom.badData('Cannot create an empty block')
-                }
-                const body = request.payload.body;
-                const block = new Block(body);
-                await myBlockChain.addBlock(block);
-                return block;
-            } catch (e) {
-                return Boom.badRequest('Invalid request - please check API');
-            }
-        }
-    });
 
 
     // Route for retrieving information on the Blockchain
