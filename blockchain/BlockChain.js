@@ -25,7 +25,9 @@ module.exports = class BlockChain {
 
     // Returns a requestObject from the mempool
     requestValidation(requestAddress){
-        return this.MemPool.addARequestValidation(requestAddress);
+        const requestObject = this.MemPool.addARequestValidation(requestAddress);
+        console.log('** requestObject',requestObject)
+        return requestObject;
     }
 
     //

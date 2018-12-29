@@ -36,23 +36,31 @@ module.exports = class MemPool {
      * @fires lokijs.Collection#update
      * @fires lokijs.Collection#insert
      * @param {Request} request Request to add into mempool
+     * @returns {Request} request with current validation window
      * @private
      */
     _upsertRequest(request) {
-        console.log('_upsertRequest')
-        const existingRequest = this.requests.findObject({walletAddress: request.getWalletAddress()});
-        console.log('existingRequest', existingRequest)
-        if (existingRequest) {
-            console.log('Request already exists!', existingRequest)
-            const updatedRequest = existingRequest.refreshedValidationWindow(VALIDATION_WINDOW)
-            console.log('updatedRequest', updatedRequest);
-            this.requests.update(updatedRequest);
-        } else {
-            console.log('new request..')
-            this.requests.insert(request);
-            // Once the Validation Window expires, the request will be removed from mempool
-            setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
+        try {
+            const existingRequest = this.requests.findObject({walletAddress: request.getWalletAddress()});
+            if (existingRequest) {
+                // Existing request: make sure validation window is correct
+                let updatedRequest = new Request(existingRequest);
+                Object.assign(updatedRequest, existingRequest);
+                // Only update mempool if validation window changed
+                if (updatedRequest.refreshValidationWindow(VALIDATION_WINDOW)) {
+                    this.requests.update(updatedRequest);
+                }
+                return updatedRequest;
+            } else {
+                this.requests.insert(request);
+                // Once the Validation Window expires, the request will be removed from mempool
+                setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
+                return request;
+            }
+        } catch (e) {
+            console.error(e)
         }
+
     }
 
 
@@ -68,7 +76,6 @@ module.exports = class MemPool {
      * @private
      */
     _removeRequest({walletAddress}) {
-        console.log('called _removeRequest', walletAddress);
         return () => {
             this.requests.findAndRemove({walletAddress});
         }
@@ -78,13 +85,14 @@ module.exports = class MemPool {
     /**
      * Updates an existing request (validation window) or creates new
      *
-     * @param requestAddress Wallet address
+     * @param walletAddress
      * @returns {module.Request|*} A new or modified request
      */
-    addARequestValidation(requestAddress) {
-        const request = new Request(requestAddress, VALIDATION_WINDOW);
-        this._upsertRequest(request);
-        return request;
+    addARequestValidation(walletAddress) {
+        const request = new Request({walletAddress, validationWindow:VALIDATION_WINDOW});
+        const newRequest = this._upsertRequest(request);
+        // LokiJS metadata will be stripped out by following constructor
+        return new Request(newRequest)
     }
 
 
