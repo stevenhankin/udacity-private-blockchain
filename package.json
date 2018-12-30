@@ -1,13 +1,20 @@
 {
-  "name": "project_2",
+  "name": "private-blockchain-notary-service",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "In this project, I have built a Star Registry Service that allows users to claim ownership of their favorite star in the night sky",
+  "main": "server.js",
   "scripts": {
     "test": "mocha test/test"
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Steve Hankin",
+    "email": "steven.hankin@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/stevenhankin/udacity-private-blockchain.git"
+  },
   "dependencies": {
     "bitcoinjs-lib": "^4.0.2",
     "bitcoinjs-message": "^2.0.0",

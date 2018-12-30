@@ -7,61 +7,30 @@ let myBlockChain = new BlockChain();
 
 module.exports = function assignRoutes(server, memPool) {
 
-    //
-    // requestValidation(requestAddress){
-    //     const requestObject = this.MemPool.addARequestValidation(requestAddress);
-    //     console.log('** requestObject',requestObject)
-    //     return requestObject;
-    // }
-
-
-    // Web API POST endpoint to validate request with JSON response
+    /**
+     * Post a request validation for an address
+     */
     server.route({
         method: 'POST',
         path: '/requestValidation',
         handler: async function (request, h) {
             try {
-                console.log('CALLED!',request)
                 const requestAddress = request.payload.address;
                 const validationResponse = await memPool.addARequestValidation(requestAddress);
                 return validationResponse;
             } catch (e) {
-                console.log('ERR!')
                 return Boom.badRequest(e.message);
             }
         },
-        // options: {
-        //     validate: {
-        //         payload: {
-        //             // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
-        //             // See https://en.bitcoin.it/wiki/Address
-        //             address: Joi.string().required().min(26).max(35).regex(/^[1|3]/)
-        //         }
-        //     }
-        // }
-        // config: {
-        //     validate: {
-        //         payload: {
-        //             address: Joi.any().required() //.required().min(26).max(35).regex(/^[1|3]/)
-        //         },
-        //         // Validation Response will be in this example format:
-        //         // {
-        //         //     "walletAddress": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
-        //         //     "requestTimeStamp": "1544451269",
-        //         //     "message": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL:1544451269:starRegistry",
-        //         //     "validationWindow": 300
-        //         // }
-        //         // ...where:
-        //         //    Message format = [walletAddress]:[timeStamp]:starRegistry
-        //         //    validationWindow = seconds left until validation expires
-        //         response: {
-        //             walletAddress: Joi.string(),
-        //             requestTimeStamp:Joi.string(),
-        //             message:Joi.string(),
-        //             validationWindow:Joi.string()
-        //         }
-        //     }
-        // }
+        options: {
+            validate: {
+                payload: {
+                    // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
+                    // See https://en.bitcoin.it/wiki/Address
+                    address: Joi.string().required().min(26).max(35).regex(/^[1|3]/)
+                }
+            }
+        }
     });
 
 
@@ -82,7 +51,7 @@ module.exports = function assignRoutes(server, memPool) {
         options: {
             validate: {
                 payload: {
-                    address: Joi.string().required(),
+                    address: Joi.string().required().min(26).max(35).regex(/^[1|3]/),
                     signature: Joi.string().required()
                 }
             }
@@ -100,7 +69,6 @@ module.exports = function assignRoutes(server, memPool) {
                 const address = request.payload.address;
                 const star = request.payload.star;
                 const encodedStory = Buffer.from(star.story, 'utf8').toString('hex');
-                console.log('encodedStory:', encodedStory);
                 if (memPool.verifyAddressRequest(address)) {
                     const encodedStar = {
                         ...star,
@@ -110,7 +78,6 @@ module.exports = function assignRoutes(server, memPool) {
                         address,
                         star: encodedStar
                     };
-                    console.log('body:', body);
                     const block = new Block(body);
                     await myBlockChain.addBlock(block);
                     // Make sure only one Star can be send in the request
@@ -124,7 +91,7 @@ module.exports = function assignRoutes(server, memPool) {
         options: {
             validate: {
                 payload: {
-                    address: Joi.string().required(),
+                    address: Joi.string().required().min(26).max(35).regex(/^[1|3]/),
                     star: Joi.object().required()
                 }
             }
@@ -147,6 +114,13 @@ module.exports = function assignRoutes(server, memPool) {
                     return block;
                 } catch (e) {
                     return Boom.badRequest(e.message);
+                }
+            },
+            options: {
+                validate: {
+                    params: {
+                        hash: Joi.string().required().min(60)
+                    }
                 }
             }
         }
@@ -173,6 +147,13 @@ module.exports = function assignRoutes(server, memPool) {
                 } catch (e) {
                     return Boom.badRequest(e.message);
                 }
+            },
+            options: {
+                validate: {
+                    params: {
+                        address: Joi.string().required().min(26).max(35).regex(/^[1|3]/)
+                    }
+                }
             }
         }
     );
@@ -193,6 +174,13 @@ module.exports = function assignRoutes(server, memPool) {
                     return block;
                 } catch (e) {
                     return Boom.badRequest(e.message);
+                }
+            },
+            options: {
+                validate: {
+                    params: {
+                        height: Joi.number().required().min(0)
+                    }
                 }
             }
         }
@@ -237,7 +225,6 @@ module.exports = function assignRoutes(server, memPool) {
             }
         }
     });
-
 
 };
 
