@@ -26,47 +26,6 @@ module.exports = class BlockChain {
     }
 
 
-    // Returns a requestObject from the mempool
-
-    // /**
-    //  * Requests a validation object (which will be stored in mempool)
-    //  *
-    //  * @param requestAddress Wallet address
-    //  * @returns {module.Request|*}  Request object with current validation window
-    //  */
-    // requestValidation(requestAddress){
-    //     const requestObject = this.MemPool.addARequestValidation(requestAddress);
-    //     console.log('** requestObject',requestObject)
-    //     return requestObject;
-    // }
-
-
-    // /**
-    //  * Validate the signature for a request
-    //  *
-    //  * If valid, the timeout will be removed from the request in the mempool
-    //  *
-    //  * @param {string} address
-    //  * @param {string} signature
-    //  */
-    // validateRequestByWallet(address,signature) {
-    //     console.log('validateRequestByWallet');
-    //     const request = this.MemPool.getRequest(address);
-    //     if (!request) {
-    //         throw Error('No such request pending');
-    //     }
-    //     console.log(request.getMessage());
-    //     console.log(`verify: ${request.getMessage()},${address},${signature}`)
-    //     let isValid = BitcoinMessage.verify(request.getMessage(), address, signature);
-    //     if (isValid) {
-    //
-    //     }
-    //     console.log('isValid',isValid)
-    //     console.log('request---',JSON.stringify(request))
-    //     return {isValid}//TODO
-    // }
-
-
     /**
      * Get block height by counting blocks in chain
      * This will be equivalent to <height of top block> + 1
@@ -98,8 +57,8 @@ module.exports = class BlockChain {
 
 
     /**
-     * Gets Block By Height
-     * or throw error that the block does not exist
+     * Gets a Block By Height
+     * This is a simple format and is stored in leveldb blockchain
      *
      * @param height
      * @returns {Promise}
@@ -107,12 +66,27 @@ module.exports = class BlockChain {
     getBlock(height) {
         let self = this;
         return this.db.getLevelDBData(height)
+            .then(block => block,
+                () => {
+                    throw new Error(`No block at height ${height}`);
+                });
+    }
+
+    /**
+     * Gets a Block By Height with a decoded story entry
+     *
+     * @param height
+     * @returns {Promise}
+     */
+    getBlockDecodedStory(height) {
+        let self = this;
+        return this.db.getLevelDBData(height)
             .then(block => {
-                    return self._withDecodedStory(block);
+                    return self._withDecodedStory(block)
                 },
                 () => {
-                    throw new Error(`No block at height ${height}`)
-                })
+                    throw new Error(`No block at height ${height}`);
+                });
     }
 
 
@@ -121,7 +95,7 @@ module.exports = class BlockChain {
      * Additionally, when adding a new block to the chain, code checks if a Genesis block already exists
      * If not, one is created before adding the a block
      *
-     * @param newBlock
+     * @param metaBlock Block containing extra meta data that shouldn't be stored in BlockChain
      * @returns {Promise<any | void>}
      */
     addBlock(newBlock) {
@@ -132,20 +106,18 @@ module.exports = class BlockChain {
                         if (height === 0) {
                             // Empty blockchain; create Genesis Block
                             return self.db.addLevelDBData(0, BlockChain.genesisBlock())
-                                .then(() => {
-                                    return 1
-                                })
+                                .then(() => 1);
                         } else {
                             // Genesis block already exists so nothing to do here
                             // except pass-through the height
-                            return height
+                            return height;
                         }
                     }
                 )
                 .then((height) => {
                     // Need previous block to determine
                     // new height and previous block hash
-                    return self.getBlock(height - 1)
+                    return self.getBlock(height - 1);
                 })
                 .then(prevBlock => {
                     newBlock.height = prevBlock.height + 1;
@@ -155,7 +127,10 @@ module.exports = class BlockChain {
                     newBlock.hash = newBlock.getBlockHash();
                     return self.db.addLevelDBData(newBlock.height, newBlock)
                 })
-                .then(result => resolve(result))
+                .then(result => {
+                    console.log(result);
+                    resolve(result);
+                })
                 .catch(err => reject(err))
         }).catch(err => console.error('Failed to add a new block - ', err))
     }
@@ -200,7 +175,6 @@ module.exports = class BlockChain {
         let self = this;
         let blockCount = 0;
         let errorLog = [];
-
         return new Promise((resolve, reject) => {
             // Utility to keep a running total of blocks validated
             const chainValidator = (height) => {
@@ -253,10 +227,8 @@ module.exports = class BlockChain {
                 .on('data', blockStr => {
                     const testBlock = JSON.parse(blockStr);
                     if (testBlock.hash === hash) {
-                        console.log(testBlock)
                         const block = self._withDecodedStory(testBlock);
-                        console.log(block);
-                        resolve(block)
+                        resolve(block);
                     }
                 })
                 .on('end', () => reject(new Error('No such hash in blockchain')))

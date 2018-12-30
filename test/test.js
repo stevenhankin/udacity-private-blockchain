@@ -219,7 +219,7 @@ const generateBlocks = (block) => {
                     assert.equal(httpResponse.statusCode, 200);
                     assert.jsonSchema(jBody, blockRespSchema);
                     starHash = jBody.hash;
-                    console.log('starHash',starHash)
+                    console.log('starHash', starHash)
                     done();
                 } catch (err) {
                     console.error(err);
@@ -231,13 +231,9 @@ const generateBlocks = (block) => {
 };
 
 
-
-for (let block=1;block<=BLOCKS_TO_CREATE;block++) {
+for (let block = 1; block <= BLOCKS_TO_CREATE; block++) {
     generateBlocks(block);
 }
-
-
-
 
 
 describe('GET: /stars/hash:[HASH]', () => {
@@ -248,16 +244,7 @@ describe('GET: /stars/hash:[HASH]', () => {
     });
     it('should provide a valid response', function (done) {
         request.get({
-            url: 'http://localhost:8000/stars/hash:' + starHash,
-            body: JSON.stringify(
-                {
-                    address,
-                    star: {
-                        "dec": "68° 52' 56.9",
-                        "ra": "16h 29m 1.0s",
-                        "story": "Found star using https://www.google.com/sky/"
-                    }
-                })
+            url: 'http://localhost:8000/stars/hash:' + starHash
         }, (err, httpResponse, body) => {
             try {
                 if (err) {
@@ -281,16 +268,7 @@ describe('GET: /stars/hash:[HASH]', () => {
 describe('GET: /stars/address:[ADDRESS]', () => {
     it('should provide a valid response', function (done) {
         request.get({
-            url: 'http://localhost:8000/stars/address:' + address,
-            body: JSON.stringify(
-                {
-                    address,
-                    star: {
-                        "dec": "68° 52' 56.9",
-                        "ra": "16h 29m 1.0s",
-                        "story": "Found star using https://www.google.com/sky/"
-                    }
-                })
+            url: 'http://localhost:8000/stars/address:' + address
         }, (err, httpResponse, body) => {
             try {
                 if (err) {
@@ -302,8 +280,7 @@ describe('GET: /stars/address:[ADDRESS]', () => {
                 assert.jsonSchema(jBody[0], blockRespSchema);
                 // Created multiple blocks for the random address
                 // and they should all be returned as an array
-                assert.equal(jBody.length,BLOCKS_TO_CREATE);
-                starHash = jBody.hash;
+                assert.equal(jBody.length, BLOCKS_TO_CREATE);
                 done();
             } catch (err) {
                 console.error(err);
@@ -317,16 +294,7 @@ describe('GET: /stars/address:[ADDRESS]', () => {
 describe('GET: /block/[HEIGHT]', () => {
     it('should retrieve block 1 (first block after genesis)', function (done) {
         request.get({
-            url: 'http://localhost:8000/block/1',
-            body: JSON.stringify(
-                {
-                    address,
-                    star: {
-                        "dec": "68° 52' 56.9",
-                        "ra": "16h 29m 1.0s",
-                        "story": "Found star using https://www.google.com/sky/"
-                    }
-                })
+            url: 'http://localhost:8000/block/1'
         }, (err, httpResponse, body) => {
             try {
                 if (err) {
@@ -336,7 +304,6 @@ describe('GET: /block/[HEIGHT]', () => {
                 console.log(jBody);
                 assert.equal(httpResponse.statusCode, 200);
                 assert.jsonSchema(jBody, blockRespSchema);
-                starHash = jBody.hash;
                 done();
             } catch (err) {
                 console.error(err);
@@ -345,3 +312,27 @@ describe('GET: /block/[HEIGHT]', () => {
         });
     });
 });
+
+
+describe('Validate BlockChain', () => {
+    it('should return a valid result', function (done) {
+        request.get({
+            url: 'http://localhost:8000/validateChain'
+        }, (err, httpResponse, body) => {
+            try {
+                if (err) {
+                    done(err);
+                }
+                const jBody = JSON.parse(body);
+                console.log(jBody);
+                assert.equal(httpResponse.statusCode, 200);
+                assert.isTrue(jBody.valid);
+                done();
+            } catch (err) {
+                console.error(err);
+                done(err);
+            }
+        });
+    });
+});
+

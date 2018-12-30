@@ -170,7 +170,7 @@ module.exports = function assignRoutes(server, memPool) {
             handler: async function (request, h) {
                 try {
                     const height = request.params.height;
-                    const block = await myBlockChain.getBlock(height);
+                    const block = await myBlockChain.getBlockDecodedStory(height);
                     return block;
                 } catch (e) {
                     return Boom.badRequest(e.message);
@@ -207,20 +207,22 @@ module.exports = function assignRoutes(server, memPool) {
     });
 
 
-    // Route for validating the BlockChain
-    // Since this is a non-mutating action, it's a GET rather than a POST
+    /**
+     * Validate BlockChain
+     * Since this is a non-mutating action, it's a GET rather than a POST
+     */
     server.route({
         method: 'GET',
         path: '/validateChain',
         handler: async function (request, h) {
             try {
                 const invalidBlocks = await myBlockChain.validateChain();
-                return {valid: true, invalidBlocks}
+                return {valid: true, invalidBlocks};
             } catch (invalidBlocks) {
                 if (invalidBlocks) {
                     return {valid: false, invalidBlocks}
                 } else {
-                    return Boom.serverUnavailable('Unexpected error')
+                    return Boom.serverUnavailable('Unexpected error');
                 }
             }
         }
