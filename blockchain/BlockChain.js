@@ -33,7 +33,7 @@ module.exports = class BlockChain {
      * @returns {number} block height
      */
     getBlockHeight() {
-        return this.db.getBlocksCount()
+        return this.db.getBlocksCount();
     }
 
 
@@ -46,11 +46,9 @@ module.exports = class BlockChain {
      * @private
      */
     _withDecodedStory(block) {
-        console.log('_withDecodedStory', block);
         if (block.height > 0) {
             const encodedStory = block.body.star.story;
-            const storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
-            block.body.star.storyDecoded = storyDecoded;
+            block.body.star.storyDecoded = Buffer.from(encodedStory, 'hex').toString('utf8');
         }
         return block;
     }
@@ -82,7 +80,7 @@ module.exports = class BlockChain {
         let self = this;
         return this.db.getLevelDBData(height)
             .then(block => {
-                    return self._withDecodedStory(block)
+                    return self._withDecodedStory(block);
                 },
                 () => {
                     throw new Error(`No block at height ${height}`);
@@ -95,7 +93,7 @@ module.exports = class BlockChain {
      * Additionally, when adding a new block to the chain, code checks if a Genesis block already exists
      * If not, one is created before adding the a block
      *
-     * @param metaBlock Block containing extra meta data that shouldn't be stored in BlockChain
+     * @param newBlock Block containing extra meta data that shouldn't be stored in BlockChain
      * @returns {Promise<any | void>}
      */
     addBlock(newBlock) {
@@ -125,14 +123,13 @@ module.exports = class BlockChain {
                     // Only can compute the hash AFTER the block is setup
                     // since those details form part of the hash
                     newBlock.hash = newBlock.getBlockHash();
-                    return self.db.addLevelDBData(newBlock.height, newBlock)
+                    return self.db.addLevelDBData(newBlock.height, newBlock);
                 })
                 .then(result => {
-                    console.log(result);
                     resolve(result);
                 })
-                .catch(err => reject(err))
-        }).catch(err => console.error('Failed to add a new block - ', err))
+                .catch(err => reject(err));
+        }).catch(err => console.error('Failed to add a new block - ', err));
     }
 
 
@@ -154,12 +151,12 @@ module.exports = class BlockChain {
                     return new Promise(() => {
                         const expectedHash = block.getBlockHash();
                         if (block.hash !== expectedHash) {
-                            reject(`Block ${height} is invalid. Expected hash ${expectedHash} but got ${block.hash}`)
+                            reject(`Block ${height} is invalid. Expected hash ${expectedHash} but got ${block.hash}`);
                         }
-                        resolve(`Block ${height} is valid`)
-                    })
+                        resolve(`Block ${height} is valid`);
+                    });
                 })
-                .catch(reason => reject(`failed to get Block ${height}`))
+                .catch(reason => reject(`failed to get Block ${height}`));
         });
     }
 
@@ -182,7 +179,7 @@ module.exports = class BlockChain {
                 // Once all blocks processed, resolve/reject as appropriate
                 if (blockCount === height) {
                     if (errorLog.length > 0) {
-                        reject(errorLog)
+                        reject(errorLog);
                     } else {
                         resolve(errorLog);
                     }
@@ -205,9 +202,9 @@ module.exports = class BlockChain {
                                         errorLog.push(reason);
                                         chainValidator(height);
                                     })
-                                .catch(err => reject(err))
+                                .catch(err => reject(err));
                         })
-                        .on('error', (err) => reject(err))
+                        .on('error', (err) => reject(err));
                 });
         });
     }
@@ -231,7 +228,7 @@ module.exports = class BlockChain {
                         resolve(block);
                     }
                 })
-                .on('end', () => reject(new Error('No such hash in blockchain')))
+                .on('end', () => reject(new Error('No such hash in blockchain')));
         });
     }
 
@@ -249,34 +246,12 @@ module.exports = class BlockChain {
             this.db.getBlockStream()
                 .on('data', blockStr => {
                     const testBlock = JSON.parse(blockStr);
-                    // console.log(testBlock)
-                    console.log('testBlock:', testBlock);
                     if (testBlock && testBlock.body && testBlock.body.address === address) {
                         const block = self._withDecodedStory(testBlock);
                         blockArray.push(block);
-                        // console.log(block);
                     }
                 })
-                .on('end', () => resolve(blockArray))
-        });
-    }
-
-
-    /**
-     * Utility Method to Tamper a Block for Test Validation
-     * This method is for testing purpose
-     *
-     * @param height
-     * @param block
-     * @returns {Promise<any>}
-     * @private
-     */
-    _modifyBlock(height, block) {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            self.db.addLevelDBData(height, block)
-                .then(blockModified => resolve(blockModified))
-                .catch(err => reject(err));
+                .on('end', () => resolve(blockArray));
         });
     }
 

@@ -2,7 +2,7 @@
 
 const MemPool = require('./mempool/MemPool.js');
 const Hapi = require('hapi');
-const assignRoutes = require('./api/routes.js')
+const assignRoutes = require('./api/routes.js');
 
 
 // Create a server with a host and port

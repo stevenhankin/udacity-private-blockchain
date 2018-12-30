@@ -17,7 +17,6 @@ module.exports = class Request {
         this.walletAddress = walletAddress;
         this.message = `${this.walletAddress}:${this.requestTimeStamp}:starRegistry`;
         this.validationWindow = validationWindow - (this.requestTimeStamp - this.origTimeStamp);
-        console.log('***',this);
     }
 
 

@@ -52,7 +52,6 @@ module.exports = class MemPool {
             // Note: the timestamp needs to be overridden
             existingRequest.requestTimeStamp = request.requestTimeStamp;
             let updatedRequest = new Request(existingRequest);
-            console.log('updatedRequest',updatedRequest);
             Object.assign(existingRequest, updatedRequest);
             this.requests.update(existingRequest);
             return existingRequest;
@@ -83,7 +82,7 @@ module.exports = class MemPool {
     _removeRequest({walletAddress}) {
         return () => {
             this.requests.findAndRemove({walletAddress});
-        }
+        };
     }
 
 
@@ -96,7 +95,6 @@ module.exports = class MemPool {
     addARequestValidation(walletAddress) {
         const request = new Request({walletAddress, validationWindow: VALIDATION_WINDOW});
         const newRequest = this._upsertRequest(request);
-        console.log(newRequest);
         // LokiJS metadata and additional Request fields are stripped out
         return {
             "walletAddress":newRequest.walletAddress,
@@ -111,11 +109,11 @@ module.exports = class MemPool {
      * Returns the request for the wallet address
      * There is only either 1 or 0 requests in the mempool for an address
      *
-     * @param walletAddress
+     * @param {string} walletAddress
+     * @param {string} signature
      * @returns {Request}
      */
     validateRequestByWallet(walletAddress, signature) {
-        console.log('Searching for address', walletAddress)
         const request = this.requests.find({walletAddress})[0];
         if (!request) {
             throw new Error('No pending request for address');
@@ -123,8 +121,6 @@ module.exports = class MemPool {
         if (request.messageSignature) {
             throw new Error('Request already successfully signed - you can already register a star');
         }
-        console.log('request IS', request)
-        console.log(`verify: ${request.message},${walletAddress},${signature}`)
         const isValid = BitcoinMessage.verify(request.message, walletAddress, signature);
         if (isValid) {
             // Once correctly signed, the timeout is cancelled
@@ -133,7 +129,7 @@ module.exports = class MemPool {
             request.messageSignature = true;
             this.requests.update(request);
             // Prepare return payload
-            const validRequest = {
+            return {
                 "registerStar": true,
                 "status": {
                     "address": request.walletAddress,
@@ -143,7 +139,6 @@ module.exports = class MemPool {
                     "messageSignature": true
                 }
             };
-            return validRequest;
         }
         throw new Error("Invalid signature");
     }
@@ -158,10 +153,10 @@ module.exports = class MemPool {
     verifyAddressRequest(walletAddress) {
         const request = this.requests.find({walletAddress})[0];
         if (!request) {
-            throw new Error('Not a valid address')
+            throw new Error('Not a valid address');
         }
         if (!request.messageSignature) {
-            throw new Error('Address not signed/authorized')
+            throw new Error('Address not signed/authorized');
         }
         return true;
     }

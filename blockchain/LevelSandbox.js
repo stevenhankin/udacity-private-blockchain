@@ -18,13 +18,13 @@ class LevelSandbox {
                 return new Promise((resolve, reject) => {
                     try {
                         const jsonText = JSON.parse(block);
-                        resolve(jsonText)
+                        resolve(jsonText);
                     }
                     catch (error) {
-                        reject(error)
+                        reject(error);
                     }
-                })
-            })
+                });
+            });
     }
 
     // Add data to levelDB with key and value (Promise)
@@ -45,7 +45,7 @@ class LevelSandbox {
             self.db.createReadStream()
                 .on('data', () => blockCount=blockCount+1)
                 .on('error', (err) => reject(err))
-                .on('end', () => resolve(blockCount))
+                .on('end', () => resolve(blockCount));
         });
     }
 

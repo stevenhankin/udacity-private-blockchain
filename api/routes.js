@@ -16,8 +16,8 @@ module.exports = function assignRoutes(server, memPool) {
         handler: async function (request, h) {
             try {
                 const requestAddress = request.payload.address;
-                const validationResponse = await memPool.addARequestValidation(requestAddress);
-                return validationResponse;
+                // validationResponse
+                return await memPool.addARequestValidation(requestAddress);
             } catch (e) {
                 return Boom.badRequest(e.message);
             }
@@ -42,8 +42,8 @@ module.exports = function assignRoutes(server, memPool) {
             try {
                 const address = request.payload.address;
                 const signature = request.payload.signature;
-                const validationResponse = memPool.validateRequestByWallet(address, signature);
-                return validationResponse;
+                // validationResponse
+                return memPool.validateRequestByWallet(address, signature);
             } catch (e) {
                 return Boom.badRequest(e.message);
             }
@@ -110,8 +110,7 @@ module.exports = function assignRoutes(server, memPool) {
             handler: async function (request, h) {
                 try {
                     const hash = request.params.hash;
-                    const block = await myBlockChain.getStarByHash(hash);
-                    return block;
+                    return await myBlockChain.getStarByHash(hash);
                 } catch (e) {
                     return Boom.badRequest(e.message);
                 }
@@ -142,8 +141,8 @@ module.exports = function assignRoutes(server, memPool) {
             handler: async function (request, h) {
                 try {
                     const address = request.params.address;
-                    const blockArray = await myBlockChain.getStarsByAddress(address);
-                    return blockArray;
+                    // blockArray
+                    return await myBlockChain.getStarsByAddress(address);
                 } catch (e) {
                     return Boom.badRequest(e.message);
                 }
@@ -170,8 +169,8 @@ module.exports = function assignRoutes(server, memPool) {
             handler: async function (request, h) {
                 try {
                     const height = request.params.height;
-                    const block = await myBlockChain.getBlockDecodedStory(height);
-                    return block;
+                    // block
+                    return await myBlockChain.getBlockDecodedStory(height);
                 } catch (e) {
                     return Boom.badRequest(e.message);
                 }
@@ -220,7 +219,7 @@ module.exports = function assignRoutes(server, memPool) {
                 return {valid: true, invalidBlocks};
             } catch (invalidBlocks) {
                 if (invalidBlocks) {
-                    return {valid: false, invalidBlocks}
+                    return {valid: false, invalidBlocks};
                 } else {
                     return Boom.serverUnavailable('Unexpected error');
                 }

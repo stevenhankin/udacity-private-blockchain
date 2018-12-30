@@ -1,4 +1,4 @@
-const request = require('request')
+const request = require('request');
 const chai = require('chai');
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinMessage = require('bitcoinjs-message');
@@ -57,7 +57,7 @@ describe('(create a new address)', () => {
     it('should provide an address and a keypair for other tests', (done) => {
         // Always generate random rng so that we can rerun the test
         const rng = () => Buffer.from(crypto.randomBytes(16).toString('hex'));
-        keyPair = bitcoin.ECPair.makeRandom({rng: rng});
+        keyPair = bitcoin.ECPair.makeRandom({rng});
         address = bitcoin.payments.p2pkh({pubkey: keyPair.publicKey}).address;
         console.log('New address:', address);
         done();
@@ -77,7 +77,7 @@ describe('POST: /requestValidation', function () {
                     done(err);
                 }
                 const jBody = JSON.parse(body);
-                console.log(jBody)
+                console.log(jBody);
                 assert.equal(httpResponse.statusCode, 200);
                 assert.jsonSchema(jBody, requestObjectSchema);
                 message = jBody.message;
@@ -103,7 +103,7 @@ describe('Check validation window updates on new requests', function () {
                             done(err);
                         }
                         const jBody = JSON.parse(body);
-                        console.log(jBody)
+                        console.log(jBody);
                         assert.equal(httpResponse.statusCode, 200);
                         assert.jsonSchema(jBody, requestObjectSchema);
                         assert.isBelow(jBody.validationWindow, firstValWindow);
@@ -136,7 +136,7 @@ const generateBlocks = (block) => {
                         done(err);
                     }
                     const jBody = JSON.parse(body);
-                    console.log(jBody)
+                    console.log(jBody);
                     assert.equal(httpResponse.statusCode, 200);
                     assert.jsonSchema(jBody, requestObjectSchema);
                     message = jBody.message;
@@ -219,7 +219,7 @@ const generateBlocks = (block) => {
                     assert.equal(httpResponse.statusCode, 200);
                     assert.jsonSchema(jBody, blockRespSchema);
                     starHash = jBody.hash;
-                    console.log('starHash', starHash)
+                    console.log('starHash', starHash);
                     done();
                 } catch (err) {
                     console.error(err);
