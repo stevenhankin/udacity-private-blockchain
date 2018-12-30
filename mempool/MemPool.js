@@ -100,10 +100,10 @@ module.exports = class MemPool {
         // LokiJS metadata and additional Request fields are stripped out
         return {
             "walletAddress":newRequest.walletAddress,
-            "requestTimestamp":newRequest.requestTimestamp,
+            "requestTimeStamp":newRequest.requestTimeStamp,
             "message":newRequest.message,
             "validationWindow":newRequest.validationWindow
-        }
+        };
     }
 
 

@@ -19,7 +19,7 @@ const BLOCKS_TO_CREATE = 10;
 
 const requestObjectSchema = {
     required: ['walletAddress',
-        // 'requestTimeStamp',
+        'requestTimeStamp',
         'message', 'validationWindow'],
     properties: {
         "walletAddress": {type: 'string'},
