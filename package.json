@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/test"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,10 @@
     "lokijs": "^1.5.5"
   },
   "devDependencies": {
-    "@types/node": "^10.12.18"
+    "@types/node": "^10.12.18",
+    "chai": "^4.2.0",
+    "chai-json-schema": "^1.5.0",
+    "mocha": "^5.2.0",
+    "request": "^2.88.0"
   }
 }

@@ -21,22 +21,24 @@ module.exports = function assignRoutes(server, memPool) {
         path: '/requestValidation',
         handler: async function (request, h) {
             try {
+                console.log('CALLED!',request)
                 const requestAddress = request.payload.address;
                 const validationResponse = await memPool.addARequestValidation(requestAddress);
                 return validationResponse;
             } catch (e) {
+                console.log('ERR!')
                 return Boom.badRequest(e.message);
             }
         },
-        options: {
-            validate: {
-                payload: {
-                    // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
-                    // See https://en.bitcoin.it/wiki/Address
-                    address: Joi.string().required().min(26).max(35).regex(/^[1|3]/)
-                }
-            }
-        }
+        // options: {
+        //     validate: {
+        //         payload: {
+        //             // A Bitcoin address, or simply address, is an identifier of 26-35 alphanumeric characters, beginning with the number 1 or 3
+        //             // See https://en.bitcoin.it/wiki/Address
+        //             address: Joi.string().required().min(26).max(35).regex(/^[1|3]/)
+        //         }
+        //     }
+        // }
         // config: {
         //     validate: {
         //         payload: {

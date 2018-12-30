@@ -1,5 +1,5 @@
 /* ===== Executable Test ==================================
-|  Use this file to test your project.
+|  Use this file to test.js your project.
 |  =========================================================*/
 
 const BlockChain = require('./BlockChain.js');

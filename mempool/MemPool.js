@@ -9,7 +9,7 @@ const BitcoinMessage = require('bitcoinjs-message');
  */
 
 // const VALIDATION_WINDOW = 60 * 5; // Validation window is set to 5 minutes
-const VALIDATION_WINDOW = 20000; //TODO : remove this test setting
+const VALIDATION_WINDOW = 20000; //TODO : remove this test.js setting
 
 module.exports = class MemPool {
     /**
