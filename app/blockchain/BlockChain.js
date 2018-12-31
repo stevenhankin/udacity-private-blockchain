@@ -2,13 +2,17 @@
 |  Class with a constructor for new blockchain 		|
 |  ================================================*/
 
-const LevelSandbox = require('./LevelSandbox.js');
+const LevelSandbox = require('./Ledger.js');
 const Block = require('./Block.js');
 
 
 module.exports = class BlockChain {
 
 
+    /**
+     *
+     * @constructor
+     */
     constructor() {
         this.db = new LevelSandbox.LevelSandbox();
     }

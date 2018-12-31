@@ -1,23 +1,25 @@
 # Project #4 - Build a Private Blockchain Notary Service
 
-Star Registry Service that allows users to claim ownership of their favorite star in the night sky.
-Implemented as a blockchain that is persisted using LevelDB and made externally available
-via a Web API (HAPI framework). A mempool stores validated and signed requests using 
-[LokiJS](http://lokijs.org/#/)
+* Star Registry Service that allows users to claim ownership of their favorite star in the night sky
+* Implemented as a blockchain that is persisted using LevelDB and made externally available via a Web API (HAPI framework)
+* A mempool stores validated and signed requests using [LokiJS](http://lokijs.org/#/)
+
+
 
 ## Setup
+
 
 ### Requirements
 
 [Node](http://nodejs.org/) is really easy to install & now include [NPM](https://npmjs.org/).
-You should be able to run the following command after the installation procedure
-below.
+You should be able to run the following command after the installation procedure below:
 
     $ node --version
     v11.5.0
 
     $ npm --version
     6.5.0
+
 
 ### Installation
 
@@ -27,17 +29,41 @@ To setup the project for review do the following:
     $ cd udacity-private-blockchain
     $ npm install
 
+
+### Project structure
+Key files are listed below:
+```bash
+├── app
+│   ├── api
+│   │   └── routes.js      <-- Controller for HTTP routing, initialises mempool/ledger
+│   ├── blockchain
+│   │   ├── Block.js       <-- Block model
+│   │   ├── BlockChain.js  <-- BlockChain functionality
+│   │   └── Ledger.js      <-- Wrapper for LevelDB file storage
+│   ├── mempool
+│   │   ├── MemPool.js     <-- Wrapper for LokiJS in-memory database
+│   │   └── Request.js     <-- Request model
+│   └── server.js          <-- MAIN entry point
+└── test
+```
+Node modules, documentation, etc are not included above
+
+
 ### Running the project
+
 To start the Web API on **localhost:8000**, run the following:
 
     $ npm start
 
+
 ### Testing the project
+
 When the Web API service is running, just run the following in a separate shell:
 
     $ npm test
 
 This is a comprehensive test suite using [Mocha](https://mochajs.org)
+
 
 ## API
 
@@ -51,6 +77,14 @@ Get stars by wallet address | stars/address:[ADDRESS] | `curl -X GET http://loca
 Get star block by block height | /block/{height} | `curl --location --request GET "http://localhost:8000/block/1"`
 Get BlockChain info | /info | `curl --location --request GET "http://localhost:8000/info"`
 Validate BlockChain | /validateChain | `curl --location --request GET "http://localhost:8000/validateChain"`
+
+
+## Documentation 
+Documentation can be generated via esdoc as follows:
+
+    $ npm run docs
+
+The html output will be in the ./docs subfolder
 
 
 ## What I learned with this Project

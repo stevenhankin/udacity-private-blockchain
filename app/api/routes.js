@@ -2,10 +2,17 @@ const Boom = require('boom');
 const Joi = require('joi');
 const BlockChain = require('../blockchain/BlockChain.js');
 const Block = require('../blockchain/Block.js');
-let myBlockChain = new BlockChain();
+const MemPool = require('../mempool/MemPool.js');
 
 
-module.exports = function assignRoutes(server, memPool) {
+/**
+ * @desc Configure routing, setup BlockChain ledger and MemPool
+ * @param server
+ */
+module.exports = function assignRoutes(server) {
+
+    let myBlockChain = new BlockChain();
+    let memPool = new MemPool();
 
     /**
      * Post a request validation for an address

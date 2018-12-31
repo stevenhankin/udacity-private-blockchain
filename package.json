@@ -2,9 +2,26 @@
   "name": "private-blockchain-notary-service",
   "version": "1.0.0",
   "description": "In this project, I have built a Star Registry Service that allows users to claim ownership of their favorite star in the night sky",
-  "main": "server.js",
+  "main": "app/server.js",
   "scripts": {
-    "test": "mocha test/test"
+    "start": "node app/server.js",
+    "test": "mocha test/test",
+    "docs": "./node_modules/.bin/esdoc"
+  },
+  "esdoc": {
+    "source": "app",
+    "excludes": ["node_modules","docs"],
+    "destination": "./docs",
+    "plugins": [
+      {
+        "name": "esdoc-standard-plugin",
+        "test": {
+          "source": "./test/",
+          "interfaces": ["describe", "it", "context", "suite", "test"],
+          "includes": ["(spec|Spec|test|Test)\\.js$"],
+          "excludes": ["\\.config\\.js$"]
+        }
+      }]
   },
   "author": {
     "name": "Steve Hankin",
@@ -12,8 +29,8 @@
   },
   "license": "MIT",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/stevenhankin/udacity-private-blockchain.git"
+    "type": "git",
+    "url": "https://github.com/stevenhankin/udacity-private-blockchain.git"
   },
   "dependencies": {
     "bitcoinjs-lib": "^4.0.2",
@@ -29,6 +46,19 @@
     "@types/node": "^10.12.18",
     "chai": "^4.2.0",
     "chai-json-schema": "^1.5.0",
+    "esdoc": "^1.1.0",
+    "esdoc-accessor-plugin": "^1.0.0",
+    "esdoc-brand-plugin": "^1.0.1",
+    "esdoc-coverage-plugin": "^1.1.0",
+    "esdoc-external-ecmascript-plugin": "^1.0.0",
+    "esdoc-integrate-manual-plugin": "^1.0.0",
+    "esdoc-integrate-test-plugin": "^1.0.0",
+    "esdoc-lint-plugin": "^1.0.2",
+    "esdoc-publish-html-plugin": "^1.1.2",
+    "esdoc-standard-plugin": "^1.0.0",
+    "esdoc-type-inference-plugin": "^1.0.2",
+    "esdoc-undocumented-identifier-plugin": "^1.0.0",
+    "esdoc-unexported-identifier-plugin": "^1.0.0",
     "mocha": "^5.2.0",
     "request": "^2.88.0"
   }

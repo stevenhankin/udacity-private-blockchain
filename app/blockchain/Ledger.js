@@ -5,7 +5,7 @@
 const level = require('level');
 const chainDB = './chaindata';
 
-class LevelSandbox {
+class Ledger {
 
     constructor() {
         this.db = level(chainDB);
@@ -61,4 +61,4 @@ class LevelSandbox {
 
 }
 
-module.exports.LevelSandbox = LevelSandbox;
+module.exports.LevelSandbox = Ledger;
