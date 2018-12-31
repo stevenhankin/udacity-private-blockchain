@@ -74,11 +74,164 @@ Resource | Description | Example
 Request Validation | /requestValidation | `curl -X POST   http://localhost:8000/requestValidation -H 'Content-Type: application/json'    -H 'cache-control: no-cache'  -d '{    "address":"18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T"}'`
 Validate a Signature | /message-signature/validate | `curl -X POST http://localhost:8000/message-signature/validate -H 'Content-Type: application/json'   -H 'cache-control: no-cache'  -d '{"address":"18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",   "signature":"H2mEWlo0AnE6XjUIkDpSV93XAawqib3kHa+uIPWGphklO+bF5hrMNdVqu0NTgVvolZ/WV6uJi8mwXB/7by8K0KQ="}'`
 Post a claim for a star | /block | `curl -X POST http://localhost:8000/block-H 'Content-Type: application/json'-H 'cache-control: no-cache' -d $'{"address":"18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",  "star": {"dec": "68° 52\' 56.9","ra": "16h 29m 1.0s","story": "Found star using https://www.google.com/sky/"}}'`
-Get star block by block hash | stars/hash:[HASH] | `curl -X GET http://localhost:8000/stars/hash:6f508d6ab09a044e7dd2795b76f0945fb48ae670d4ce547a46594f6d13931d1c -H 'Content-Type: application/json'   -H 'cache-control: no-cache'`
-Get stars by wallet address | stars/address:[ADDRESS] | `curl -X GET http://localhost:8000/stars/address:18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T -H 'Content-Type: application/json'   -H 'cache-control: no-cache'`
+Get star block by block hash | /stars/hash:[HASH] | `curl -X GET http://localhost:8000/stars/hash:6f508d6ab09a044e7dd2795b76f0945fb48ae670d4ce547a46594f6d13931d1c -H 'Content-Type: application/json'   -H 'cache-control: no-cache'`
+Get stars by wallet address | /stars/address:[ADDRESS] | `curl -X GET http://localhost:8000/stars/address:18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T -H 'Content-Type: application/json'   -H 'cache-control: no-cache'`
 Get star block by block height | /block/{height} | `curl --location --request GET "http://localhost:8000/block/1"`
 Get BlockChain info | /info | `curl --location --request GET "http://localhost:8000/info"`
 Validate BlockChain | /validateChain | `curl --location --request GET "http://localhost:8000/validateChain"`
+
+## Samples (API Outputs)
+Below are examples of inputs and formatted outputs from CLI
+#### /requestValidation 
+###### input
+```shell
+curl -X POST   http://localhost:8000/requestValidation \
+        -H 'Content-Type: application/json' \
+        -H 'cache-control: no-cache'  -d '{"address":"18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T"}'
+```
+###### output
+```json
+{
+  "walletAddress": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",
+  "requestTimeStamp": "1546255945",
+  "message": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T:1546255945:starRegistry",
+  "validationWindow": 300
+}
+````
+
+#### /message-signature/validate 
+###### input
+```shell
+curl -X POST \
+  http://localhost:8000/message-signature/validate \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d '{"address":"18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",   
+       "signature":"H6CdLlHZBfDcUbl2iGzMFXPVfn4EEtHLagia4yQP1M6vDxuk7PSg71lr6Cb75DeF+HrSnooqjKAYFlHcfeOruSk="}'
+```
+###### output
+```json
+{
+  "registerStar": true,
+  "status": {
+    "address": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",
+    "requestTimeStamp": "1546256313",
+    "message": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T:1546256313:starRegistry",
+    "validationWindow": 300,
+    "messageSignature": true
+  }
+}
+````
+
+#### /block
+###### input
+```shell
+curl -X POST \
+  http://localhost:8000/block \
+  -H 'Content-Type: application/json' \
+  -H 'cache-control: no-cache' \
+  -d $'{"address":"18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T", 
+       "star": {
+                "dec": "68° 52\' 56.9",
+                "ra": "16h 29m 1.0s",
+                "story": "Found star using https://www.google.com/sky/"
+            }
+}'
+```
+###### output
+```json
+{
+  "hash": "78cd0333a2065660785244293241007ac5a029b881fbc873c00ac9d96bca7364",
+  "height": 31,
+  "body": {
+    "address": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",
+    "star": {
+      "dec": "68° 52' 56.9",
+      "ra": "16h 29m 1.0s",
+      "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f"
+    }
+  },
+  "time": "1546256476",
+  "previousBlockHash": "ab499550ea6b727ae5148eda016d4f2b03605b40038943935d8044cd2256e328"
+}
+````
+
+#### /stars/hash:[HASH]
+###### input
+```shell
+curl -X GET http://localhost:8000/stars/hash:78cd0333a2065660785244293241007ac5a029b881fbc873c00ac9d96bca7364  \
+     -H 'Content-Type: application/json'  \
+     -H 'cache-control: no-cache' 
+```
+###### output
+```json
+{
+  "hash": "78cd0333a2065660785244293241007ac5a029b881fbc873c00ac9d96bca7364",
+  "height": 31,
+  "body": {
+    "address": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",
+    "star": {
+      "dec": "68° 52' 56.9",
+      "ra": "16h 29m 1.0s",
+      "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f",
+      "storyDecoded": "Found star using https://www.google.com/sky/"
+    }
+  },
+  "time": "1546256476",
+  "previousBlockHash": "ab499550ea6b727ae5148eda016d4f2b03605b40038943935d8044cd2256e328"
+}
+````
+
+#### /stars/address:[ADDRESS] 
+###### input
+```shell
+curl -X GET http://localhost:8000/stars/address:18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T  \
+     -H 'Content-Type: application/json' -H 'cache-control: no-cache' 
+```
+###### output
+```json
+[
+  {
+    "hash": "78cd0333a2065660785244293241007ac5a029b881fbc873c00ac9d96bca7364",
+    "height": 31,
+    "body": {
+      "address": "18ecEqCy8LfsK17b4v5ansJfXpiyhDzB3T",
+      "star": {
+        "dec": "68° 52' 56.9",
+        "ra": "16h 29m 1.0s",
+        "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f",
+        "storyDecoded": "Found star using https://www.google.com/sky/"
+      }
+    },
+    "time": "1546256476",
+    "previousBlockHash": "ab499550ea6b727ae5148eda016d4f2b03605b40038943935d8044cd2256e328"
+  }
+]
+````
+
+#### /block/{height}
+###### input
+```shell
+curl -X GET http://localhost:8000/block/1 -H 'Content-Type: application/json'   -H 'cache-control: no-cache'
+```
+###### output
+```json
+{
+  "hash": "dd3cb5c31adb75702ae97bd0b79e0cf92d4286d9dc0cfe5f41a40158bf1c0d65",
+  "height": 1,
+  "body": {
+    "address": "1DHEcCVTpQisJVwoDtoSzyD86SwzmY4UzG",
+    "star": {
+      "dec": "68° 52' 56.9",
+      "ra": "16h 29m 1.0s",
+      "story": "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f",
+      "storyDecoded": "Found star using https://www.google.com/sky/"
+    }
+  },
+  "time": "1546255664",
+  "previousBlockHash": "78c601d161387579963fd8462717c53b188ce95f8baffb612edc4df8b50768a5"
+}
+````
 
 
 ## Documentation 
