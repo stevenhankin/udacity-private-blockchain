@@ -44,6 +44,8 @@ Key files are listed below:
 │   │   ├── MemPool.js     <-- Wrapper for LokiJS in-memory database
 │   │   └── Request.js     <-- Request model
 │   └── server.js          <-- MAIN entry point
+├── config
+│   └── default.json       <-- Project constants
 └── test
 ```
 Node modules, documentation, etc are not included above

@@ -1,0 +1,12 @@
+{
+  "server": {
+    "host": "localhost",
+    "port": 8000
+  },
+  "mempool":{
+    "validationWindow": 300
+  },
+  "blockchain": {
+    "genesisBlockMessage": "First block in the chain - Genesis Block"
+  }
+}

@@ -10,18 +10,32 @@
   },
   "esdoc": {
     "source": "app",
-    "excludes": ["node_modules","docs"],
+    "excludes": [
+      "node_modules",
+      "docs"
+    ],
     "destination": "./docs",
     "plugins": [
       {
         "name": "esdoc-standard-plugin",
         "test": {
           "source": "./test/",
-          "interfaces": ["describe", "it", "context", "suite", "test"],
-          "includes": ["(spec|Spec|test|Test)\\.js$"],
-          "excludes": ["\\.config\\.js$"]
+          "interfaces": [
+            "describe",
+            "it",
+            "context",
+            "suite",
+            "test"
+          ],
+          "includes": [
+            "(spec|Spec|test|Test)\\.js$"
+          ],
+          "excludes": [
+            "\\.config\\.js$"
+          ]
         }
-      }]
+      }
+    ]
   },
   "author": {
     "name": "Steve Hankin",
@@ -36,6 +50,7 @@
     "bitcoinjs-lib": "^4.0.2",
     "bitcoinjs-message": "^2.0.0",
     "boom": "^7.3.0",
+    "config": "^3.0.1",
     "crypto-js": "^3.1.9-1",
     "hapi": "^17.8.1",
     "joi": "^14.3.0",

@@ -4,7 +4,7 @@
 
 const LevelSandbox = require('./Ledger.js');
 const Block = require('./Block.js');
-
+const config = require('config');
 
 module.exports = class BlockChain {
 
@@ -19,12 +19,12 @@ module.exports = class BlockChain {
 
 
     /**
-     * Hard-coded genesis block
+     * Hard-coded genesis block (stored in Config)
      *
      * @returns {module.Block|*}
      */
     static genesisBlock() {
-        let genesisBlock = new Block("First block in the chain - Genesis Block");
+        let genesisBlock = new Block(config.get("blockchain.genesisBlockMessage"));
         genesisBlock.hash = genesisBlock.getBlockHash();
         return genesisBlock;
     }

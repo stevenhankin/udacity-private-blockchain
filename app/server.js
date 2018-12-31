@@ -3,16 +3,16 @@
 /**
  * @module Main entry point
  */
-
 const Hapi = require('hapi');
 const assignRoutes = require('./api/routes.js');
+const config = require('config');
+const {host, port} = config.get("server")
 
 
 // Create a server with a host and port
-const server = Hapi.server({
-    host: 'localhost',
-    port: 8000
-});
+const server = Hapi.server(
+    {host, port}
+);
 
 
 assignRoutes(server);

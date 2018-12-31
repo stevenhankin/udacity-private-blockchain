@@ -1,14 +1,14 @@
 const loki = require('lokijs');
 const Request = require('./Request');
 const BitcoinMessage = require('bitcoinjs-message');
+const config = require('config');
+const VALIDATION_WINDOW = config.get("mempool.validationWindow");
 
 /**
  * LokiJS is an in-memory synchronous database
  * (it's synchronous because it's single-threaded
  * and in-memory hence you won't see callbacks below)
  */
-
-const VALIDATION_WINDOW = 60 * 5; // Validation window is set to 5 minutes
 
 module.exports = class MemPool {
 
