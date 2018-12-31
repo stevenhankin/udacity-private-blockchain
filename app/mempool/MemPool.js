@@ -8,13 +8,9 @@ const BitcoinMessage = require('bitcoinjs-message');
  * and in-memory hence you won't see callbacks below)
  */
 
-// const VALIDATION_WINDOW = 60 * 5; // Validation window is set to 5 minutes
-const VALIDATION_WINDOW = 20000; //TODO : remove this test.js setting
+const VALIDATION_WINDOW = 60 * 5; // Validation window is set to 5 minutes
 
 module.exports = class MemPool {
-    /**
-     * TODO: doc
-     */
 
     /**
      * Starts the LokiJS in-memory database

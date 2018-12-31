@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * @module Main entry point
+ */
+
 const Hapi = require('hapi');
 const assignRoutes = require('./api/routes.js');
 
@@ -9,7 +13,6 @@ const server = Hapi.server({
     host: 'localhost',
     port: 8000
 });
-
 
 
 assignRoutes(server);

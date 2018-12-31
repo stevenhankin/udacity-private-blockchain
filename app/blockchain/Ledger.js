@@ -7,11 +7,21 @@ const chainDB = './chaindata';
 
 class Ledger {
 
+    /**
+     * Create the Ledger on filesystem
+     * or re-open if already exists
+     */
     constructor() {
         this.db = level(chainDB);
     }
 
-    // Get data from levelDB with key (Promise)
+
+    /**
+     * Get data from levelDB with key (Promise)
+     *
+     * @param key
+     * @return {*|PromiseLike<any | never>|Promise<any | never>}
+     */
     getLevelDBData(key) {
         return this.db.get(key)
             .then(block => {
@@ -27,14 +37,26 @@ class Ledger {
             });
     }
 
-    // Add data to levelDB with key and value (Promise)
+
+    /**
+     * Add data to levelDB with key and value (Promise)
+     *
+     * @param key
+     * @param value
+     * @return {*}
+     */
     addLevelDBData(key, value) {
         return this.db.put(key, JSON.stringify(value).toString());
     }
 
-    // Method that returns the height by counting all the blocks
-    // from a Level DB stream. Resolves once all blocks are counted
-    // and rejects if any error occurs
+
+    /**
+     * Method that returns the height by counting all the blocks
+     * from a Level DB stream. Resolves once all blocks are counted
+     * and rejects if any error occurs
+     *
+     * @return {Promise<any>}
+     */
     getBlocksCount() {
         let self = this;
         // Count each Block from the stream
@@ -49,12 +71,22 @@ class Ledger {
         });
     }
 
-    // Return a readable stream of all the block IDs
+
+    /**
+     * Return a readable stream of all the block IDs
+     *
+     * @return {*}
+     */
     getBlockIndexStream() {
         return this.db.createKeyStream();
     }
 
-    // Return a readable stream of all the blocks
+
+    /**
+     * Return a readable stream of all the blocks
+     *
+     * @return {*}
+     */
     getBlockStream() {
         return this.db.createValueStream();
     }

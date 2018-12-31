@@ -15,7 +15,7 @@ module.exports = function assignRoutes(server) {
     let memPool = new MemPool();
 
     /**
-     * Post a request validation for an address
+     * Accepts a request validation for an address
      */
     server.route({
         method: 'POST',
@@ -41,7 +41,11 @@ module.exports = function assignRoutes(server) {
     });
 
 
-    // Web API POST endpoint validates message signature with JSON response
+    /**
+     * Accepts a signature validation
+     *
+     * Validation will be stored in mempool
+     */
     server.route({
         method: 'POST',
         path: '/message-signature/validate',
@@ -66,8 +70,9 @@ module.exports = function assignRoutes(server) {
     });
 
 
-    // Route for adding a block
-    // The complete block is returned to the client
+    /**
+     * Accepts a block for an address (that is signed in the mempool)
+     */
     server.route({
         method: 'POST',
         path: '/block',
