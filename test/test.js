@@ -65,6 +65,7 @@ describe('(create a new address)', () => {
 });
 
 
+let firstRequestTimeStamp = null;
 let firstValWindow = null;
 describe('POST: /requestValidation', function () {
     it('should provide a valid response', function (done) {
@@ -81,6 +82,7 @@ describe('POST: /requestValidation', function () {
                 assert.equal(httpResponse.statusCode, 200);
                 assert.jsonSchema(jBody, requestObjectSchema);
                 message = jBody.message;
+                firstRequestTimeStamp = jBody.requestTimeStamp;
                 firstValWindow = jBody.validationWindow;
                 done();
             } catch (err) {
@@ -89,6 +91,7 @@ describe('POST: /requestValidation', function () {
         });
     });
 });
+
 
 describe('Check validation window updates on new requests', function () {
     it('should reduced validation window on later request', function (done) {
@@ -106,6 +109,7 @@ describe('Check validation window updates on new requests', function () {
                         console.log(jBody);
                         assert.equal(httpResponse.statusCode, 200);
                         assert.jsonSchema(jBody, requestObjectSchema);
+                        assert.equal(jBody.requestTimeStamp, firstRequestTimeStamp, 'RequestTimeStamp should not change on repeated calls during the validation window');
                         assert.isBelow(jBody.validationWindow, firstValWindow);
                         message = jBody.message;
                         done();
