@@ -45,8 +45,6 @@ module.exports = class MemPool {
                 throw new Error("Request was already signed");
             }
             // Existing request: make sure validation window is current
-            // Note: the timestamp needs to be overridden
-            existingRequest.requestTimeStamp = request.requestTimeStamp;
             let updatedRequest = new Request(existingRequest);
             Object.assign(existingRequest, updatedRequest);
             this.requests.update(existingRequest);
@@ -54,10 +52,6 @@ module.exports = class MemPool {
         } else {
             // Once the Validation Window expires, the request will be removed from mempool
             request.timeoutID = setTimeout(this._removeRequest(request), VALIDATION_WINDOW * 1000);
-            // Since this is a new request, set the Original Timestamp
-            // so that if the request is resubmitted the validation
-            // window can be adjusted appropriately
-            request.origTimeStamp = request.requestTimeStamp;
             this.requests.insert(request);
             return request;
         }
